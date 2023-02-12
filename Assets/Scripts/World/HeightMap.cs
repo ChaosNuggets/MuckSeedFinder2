@@ -19,12 +19,12 @@ public class HeightMap
 
         heightMap = Noise.GenerateNoiseMap(MAP_CHUNK_SIZE, MAP_CHUNK_SIZE, seed, NOISE_SCALE, OCTAVES, PERSISTANCE, LACUNARITY, BLEND, BLEND_STRENGTH, offset);
         float[,] falloffMap = FalloffGenerator.GenerateFalloffMap(MAP_CHUNK_SIZE);
-        for (int index1 = 0; index1 < MAP_CHUNK_SIZE; ++index1)
+        for (int i = 0; i < MAP_CHUNK_SIZE; i++)
         {
-            for (int index2 = 0; index2 < MAP_CHUNK_SIZE; ++index2)
+            for (int j = 0; j < MAP_CHUNK_SIZE; j++)
             {
-                heightMap[index2, index1] = Mathf.Clamp(heightMap[index2, index1] - falloffMap[index2, index1], 0.0f, 1f);
-                heightMap[index2, index1] = HeightCurve.Evaluate(heightMap[index2, index1]) * HEIGHT_MULTIPLIER;
+                heightMap[j, i] = Mathf.Clamp(heightMap[j, i] - falloffMap[j, i], 0f, 1f);
+                heightMap[j, i] = HeightCurve.Evaluate(heightMap[j, i]) * HEIGHT_MULTIPLIER;
             }
         }
     }

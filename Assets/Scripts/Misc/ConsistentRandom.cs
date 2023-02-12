@@ -1,94 +1,140 @@
-// Copied and pasted from muck source code
 using System;
 
+// Token: 0x020000E2 RID: 226
 public class ConsistentRandom : Random
 {
-    private const int MBIG = 2147483647;
-    private const int MSEED = 161803398;
-    private const int MZ = 0;
-    private int inext;
-    private int inextp;
-    private int[] seedArray = new int[56];
+	// Token: 0x060006E9 RID: 1769 RVA: 0x0002491F File Offset: 0x00022B1F
+	public ConsistentRandom() : this(Environment.TickCount)
+	{
+	}
 
-    public ConsistentRandom()
-        : this(Environment.TickCount)
-    {
-    }
+	// Token: 0x060006EA RID: 1770 RVA: 0x0002492C File Offset: 0x00022B2C
+	public ConsistentRandom(int seed)
+	{
+		int num = (seed == int.MinValue) ? int.MaxValue : Math.Abs(seed);
+		int num2 = 161803398 - num;
+		this.SeedArray[55] = num2;
+		int num3 = 1;
+		for (int i = 1; i < 55; i++)
+		{
+			int num4 = 21 * i % 55;
+			this.SeedArray[num4] = num3;
+			num3 = num2 - num3;
+			if (num3 < 0)
+			{
+				num3 += int.MaxValue;
+			}
+			num2 = this.SeedArray[num4];
+		}
+		for (int j = 1; j < 5; j++)
+		{
+			for (int k = 1; k < 56; k++)
+			{
+				this.SeedArray[k] -= this.SeedArray[1 + (k + 30) % 55];
+				if (this.SeedArray[k] < 0)
+				{
+					this.SeedArray[k] += int.MaxValue;
+				}
+			}
+		}
+		this.inext = 0;
+		this.inextp = 21;
+	}
 
-    public ConsistentRandom(int seed)
-    {
-        int num1 = 161803398 - (seed == int.MinValue ? int.MaxValue : Math.Abs(seed));
-        this.seedArray[55] = num1;
-        int num2 = 1;
-        for (int index1 = 1; index1 < 55; ++index1)
-        {
-            int index2 = 21 * index1 % 55;
-            this.seedArray[index2] = num2;
-            num2 = num1 - num2;
-            if (num2 < 0)
-                num2 += int.MaxValue;
-            num1 = this.seedArray[index2];
-        }
-        for (int index3 = 1; index3 < 5; ++index3)
-        {
-            for (int index4 = 1; index4 < 56; ++index4)
-            {
-                this.seedArray[index4] -= this.seedArray[1 + (index4 + 30) % 55];
-                if (this.seedArray[index4] < 0)
-                    this.seedArray[index4] += int.MaxValue;
-            }
-        }
-        this.inext = 0;
-        this.inextp = 21;
-    }
+	// Token: 0x060006EB RID: 1771 RVA: 0x00024A26 File Offset: 0x00022C26
+	protected override double Sample()
+	{
+		return (double)this.InternalSample() * 4.656612875245797E-10;
+	}
 
-    protected override double Sample() => (double)this.InternalSample() * 4.6566128752457969E-10;
+	// Token: 0x060006EC RID: 1772 RVA: 0x00024A3C File Offset: 0x00022C3C
+	private int InternalSample()
+	{
+		int num = this.inext;
+		int num2 = this.inextp;
+		if (++num >= 56)
+		{
+			num = 1;
+		}
+		if (++num2 >= 56)
+		{
+			num2 = 1;
+		}
+		int num3 = this.SeedArray[num] - this.SeedArray[num2];
+		if (num3 == 2147483647)
+		{
+			num3--;
+		}
+		if (num3 < 0)
+		{
+			num3 += int.MaxValue;
+		}
+		this.SeedArray[num] = num3;
+		this.inext = num;
+		this.inextp = num2;
+		return num3;
+	}
 
-    private int InternalSample()
-    {
-        int inext = this.inext;
-        int inextp = this.inextp;
-        int index1;
-        if ((index1 = inext + 1) >= 56)
-            index1 = 1;
-        int index2;
-        if ((index2 = inextp + 1) >= 56)
-            index2 = 1;
-        int num = this.seedArray[index1] - this.seedArray[index2];
-        if (num == int.MaxValue)
-            --num;
-        if (num < 0)
-            num += int.MaxValue;
-        this.seedArray[index1] = num;
-        this.inext = index1;
-        this.inextp = index2;
-        return num;
-    }
+	// Token: 0x060006ED RID: 1773 RVA: 0x00024AAF File Offset: 0x00022CAF
+	public override int Next()
+	{
+		return this.InternalSample();
+	}
 
-    public override int Next() => this.InternalSample();
+	// Token: 0x060006EE RID: 1774 RVA: 0x00024AB8 File Offset: 0x00022CB8
+	private double GetSampleForLargeRange()
+	{
+		int num = this.InternalSample();
+		if (this.InternalSample() % 2 == 0)
+		{
+			num = -num;
+		}
+		return ((double)num + 2147483646.0) / 4294967293.0;
+	}
 
-    private double GetSampleForLargeRange()
-    {
-        int num = this.InternalSample();
-        if ((this.InternalSample() % 2 == 0 ? 1 : 0) != 0)
-            num = -num;
-        return ((double)num + 2147483646.0) / 4294967293.0;
-    }
+	// Token: 0x060006EF RID: 1775 RVA: 0x00024AF8 File Offset: 0x00022CF8
+	public override int Next(int minValue, int maxValue)
+	{
+		if (minValue > maxValue)
+		{
+			throw new ArgumentOutOfRangeException("minValue");
+		}
+		long num = (long)maxValue - (long)minValue;
+		if (num <= 2147483647L)
+		{
+			return (int)(this.Sample() * (double)num) + minValue;
+		}
+		return (int)((long)(this.GetSampleForLargeRange() * (double)num) + (long)minValue);
+	}
 
-    public override int Next(int minValue, int maxValue)
-    {
-        if (minValue > maxValue)
-            throw new ArgumentOutOfRangeException(nameof(minValue));
-        long num = (long)maxValue - (long)minValue;
-        return num <= (long)int.MaxValue ? (int)(this.Sample() * (double)num) + minValue : (int)((long)(this.GetSampleForLargeRange() * (double)num) + (long)minValue);
-    }
+	// Token: 0x060006F0 RID: 1776 RVA: 0x00024B40 File Offset: 0x00022D40
+	public override void NextBytes(byte[] buffer)
+	{
+		if (buffer == null)
+		{
+			throw new ArgumentNullException("buffer");
+		}
+		for (int i = 0; i < buffer.Length; i++)
+		{
+			buffer[i] = (byte)(this.InternalSample() % 256);
+		}
+	}
 
-    public override void NextBytes(byte[] buffer)
-    {
-        if (buffer == null)
-            throw new ArgumentNullException(nameof(buffer));
-        for (int index = 0; index < buffer.Length; ++index)
-            buffer[index] = (byte)(this.InternalSample() % 256);
-    }
+	// Token: 0x04000626 RID: 1574
+	private const int MBIG = 2147483647;
+
+	// Token: 0x04000627 RID: 1575
+	private const int MSEED = 161803398;
+
+	// Token: 0x04000628 RID: 1576
+	private const int MZ = 0;
+
+	// Token: 0x04000629 RID: 1577
+	private int inext;
+
+	// Token: 0x0400062A RID: 1578
+	private int inextp;
+
+	// Token: 0x0400062B RID: 1579
+	private int[] SeedArray = new int[56];
 }
-

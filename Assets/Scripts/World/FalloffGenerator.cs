@@ -1,28 +1,31 @@
+using System;
 using UnityEngine;
 
+// Token: 0x02000104 RID: 260
 public static class FalloffGenerator
 {
-    public static float[,] GenerateFalloffMap(int size)
-    {
-        float[,] falloffMap = new float[size, size];
-        for (int index1 = 0; index1 < size; ++index1)
-        {
-            for (int index2 = 0; index2 < size; ++index2)
-            {
-                double f1 = (double) index1 / (double) size * 2.0 - 1.0;
-                float f2 = (float) ((double) index2 / (double) size * 2.0 - 1.0);
-                float num = Mathf.Max(Mathf.Abs((float) f1), Mathf.Abs(f2));
-                falloffMap[index1, index2] = FalloffGenerator.Evaluate(num);
-            }
-        }
-        return falloffMap;
-    }
+	// Token: 0x060007DF RID: 2015 RVA: 0x0002920C File Offset: 0x0002740C
+	public static float[,] GenerateFalloffMap(int size)
+	{
+		float[,] array = new float[size, size];
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < size; j++)
+			{
+				float f = (float)i / (float)size * 2f - 1f;
+				float f2 = (float)j / (float)size * 2f - 1f;
+				float value = Mathf.Max(Mathf.Abs(f), Mathf.Abs(f2));
+				array[i, j] = FalloffGenerator.Evaluate(value);
+			}
+		}
+		return array;
+	}
 
-    private static float Evaluate(float value)
-    {
-        float p = 3f;
-        float num = 2.2f;
-        return Mathf.Pow(value, p) / (Mathf.Pow(value, p) + Mathf.Pow(num - num * value, p));
-    }
+	// Token: 0x060007E0 RID: 2016 RVA: 0x00029280 File Offset: 0x00027480
+	private static float Evaluate(float value)
+	{
+		float p = 3f;
+		float num = 2.2f;
+		return Mathf.Pow(value, p) / (Mathf.Pow(value, p) + Mathf.Pow(num - num * value, p));
+	}
 }
-
