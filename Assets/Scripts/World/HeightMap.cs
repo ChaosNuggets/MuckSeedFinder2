@@ -12,26 +12,32 @@ public class HeightMap
     private static (float, float) IndexToCoord(float row, float column)
     {
         // THIS IS WHAT THESE VARIABLES ARE CALLED IN MUCK'S SOURCE CODE PLEASE DON'T BULLY ME GO BULLY DANI
-        float num1 = (float) (MapGenerator.mapChunkSize - 1) / -2f;
-        float num2 = (float) (MapGenerator.mapChunkSize - 1) / 2f;
-        return ((num1 + row) * MapGenerator.worldScale, (num2 - column) * MapGenerator.worldScale);
+        float num1 = (float) (MapGenerator.MAP_CHUNK_SIZE - 1) / -2f;
+        float num2 = (float) (MapGenerator.MAP_CHUNK_SIZE - 1) / 2f;
+        return ((num1 + row) * MapGenerator.WORLD_SCALE, (num2 - column) * MapGenerator.WORLD_SCALE);
     }
     
     private static (float, float) CoordToIndex(float x, float z)
     {
-        float num1 = (float) (MapGenerator.mapChunkSize - 1) / -2f;
-        float num2 = (float) (MapGenerator.mapChunkSize - 1) / 2f;
-        return (x / MapGenerator.worldScale - num1, num2 - z / MapGenerator.worldScale);
+        float num1 = (float) (MapGenerator.MAP_CHUNK_SIZE - 1) / -2f;
+        float num2 = (float) (MapGenerator.MAP_CHUNK_SIZE - 1) / 2f;
+        return (x / MapGenerator.WORLD_SCALE - num1, num2 - z / MapGenerator.WORLD_SCALE);
     }
 
-    public float CoordToHeight(float x, float z)
+    public float CoordToHeightFast(float x, float z)
     {
         var (row, column) = CoordToIndex(x, z);
-        return IndexToHeight(row, column);
+        return IndexToHeightFast(row, column);
+    }
+
+    public float CoordToHeightPrecise(float x, float z)
+    {
+        var (row, column) = CoordToIndex(x, z);
+        return IndexToHeightPrecise(row, column);
     }
 
     // This treats the heightmap as squares
-    public float IndexToHeight(float row, float column)
+    public float IndexToHeightFast(float row, float column)
     {
         int topIndex = Mathf.FloorToInt(row);
         int leftIndex = Mathf.FloorToInt(column);

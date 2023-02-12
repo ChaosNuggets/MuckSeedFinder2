@@ -8,7 +8,7 @@ public class ConsistentRandom : Random
     private const int MZ = 0;
     private int inext;
     private int inextp;
-    private int[] SeedArray = new int[56];
+    private int[] seedArray = new int[56];
 
     public ConsistentRandom()
         : this(Environment.TickCount)
@@ -18,24 +18,24 @@ public class ConsistentRandom : Random
     public ConsistentRandom(int seed)
     {
         int num1 = 161803398 - (seed == int.MinValue ? int.MaxValue : Math.Abs(seed));
-        this.SeedArray[55] = num1;
+        this.seedArray[55] = num1;
         int num2 = 1;
         for (int index1 = 1; index1 < 55; ++index1)
         {
             int index2 = 21 * index1 % 55;
-            this.SeedArray[index2] = num2;
+            this.seedArray[index2] = num2;
             num2 = num1 - num2;
             if (num2 < 0)
                 num2 += int.MaxValue;
-            num1 = this.SeedArray[index2];
+            num1 = this.seedArray[index2];
         }
         for (int index3 = 1; index3 < 5; ++index3)
         {
             for (int index4 = 1; index4 < 56; ++index4)
             {
-                this.SeedArray[index4] -= this.SeedArray[1 + (index4 + 30) % 55];
-                if (this.SeedArray[index4] < 0)
-                    this.SeedArray[index4] += int.MaxValue;
+                this.seedArray[index4] -= this.seedArray[1 + (index4 + 30) % 55];
+                if (this.seedArray[index4] < 0)
+                    this.seedArray[index4] += int.MaxValue;
             }
         }
         this.inext = 0;
@@ -54,12 +54,12 @@ public class ConsistentRandom : Random
         int index2;
         if ((index2 = inextp + 1) >= 56)
             index2 = 1;
-        int num = this.SeedArray[index1] - this.SeedArray[index2];
+        int num = this.seedArray[index1] - this.seedArray[index2];
         if (num == int.MaxValue)
             --num;
         if (num < 0)
             num += int.MaxValue;
-        this.SeedArray[index1] = num;
+        this.seedArray[index1] = num;
         this.inext = index1;
         this.inextp = index2;
         return num;
