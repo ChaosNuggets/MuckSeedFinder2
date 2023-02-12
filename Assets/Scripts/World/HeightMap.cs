@@ -28,19 +28,24 @@ public class HeightMap
             }
         }
     }
+
+    public HeightMap(float[,] heightMap)
+    {
+        this.heightMap = heightMap;
+    }
     
     private static (float, float) IndexToCoord(float row, float column)
     {
         // THIS IS WHAT THESE VARIABLES ARE CALLED IN MUCK'S SOURCE CODE PLEASE DON'T BULLY ME GO BULLY DANI
-        float num1 = (float)(MAP_CHUNK_SIZE - 1) / -2f;
-        float num2 = (float)(MAP_CHUNK_SIZE - 1) / 2f;
+        float num1 = (MAP_CHUNK_SIZE - 1) / -2f;
+        float num2 = (MAP_CHUNK_SIZE - 1) / 2f;
         return ((num1 + row) * WORLD_SCALE, (num2 - column) * WORLD_SCALE);
     }
 
     private static (float, float) CoordToIndex(float x, float z)
     {
-        float num1 = (float)(MAP_CHUNK_SIZE - 1) / -2f;
-        float num2 = (float)(MAP_CHUNK_SIZE - 1) / 2f;
+        float num1 = (MAP_CHUNK_SIZE - 1) / -2f;
+        float num2 = (MAP_CHUNK_SIZE - 1) / 2f;
         return (x / WORLD_SCALE - num1, num2 - z / WORLD_SCALE);
     }
 
