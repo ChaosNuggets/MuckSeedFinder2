@@ -8,7 +8,7 @@ public static class HeightCurve
 
     public static float Evaluate(float f)
     {
-        f *= Mathf.Pow(10, DECIMAL_PLACES);
+        f *= Mathf.Pow(10f, (float)DECIMAL_PLACES);
         int f_ceil = Mathf.CeilToInt(f);
         int f_floor = Mathf.FloorToInt(f);
 

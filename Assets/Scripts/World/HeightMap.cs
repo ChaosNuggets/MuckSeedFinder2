@@ -9,13 +9,13 @@ public class HeightMap
     public HeightMap(int seed)
     {
         const float HEIGHT_MULTIPLIER = 100f;
-        const float NOISE_SCALE = 20;
+        const float NOISE_SCALE = 20f;
         const int OCTAVES = 4;
         const float PERSISTANCE = 0.1f;
-        const float LACUNARITY = 6;
+        const float LACUNARITY = 6f;
         const float BLEND = 0.01f;
-        const float BLEND_STRENGTH = 2;
-        Vector2 offset = new Vector2(0, 0);
+        const float BLEND_STRENGTH = 2f;
+        Vector2 offset = new Vector2(0f, 0f);
 
         heightMap = Noise.GenerateNoiseMap(MAP_CHUNK_SIZE, MAP_CHUNK_SIZE, seed, NOISE_SCALE, OCTAVES, PERSISTANCE, LACUNARITY, BLEND, BLEND_STRENGTH, offset);
         float[,] falloffMap = FalloffGenerator.GenerateFalloffMap(MAP_CHUNK_SIZE);
@@ -132,7 +132,7 @@ public class HeightMap
             : new Vector3(rightIndex, topRightHeight, topIndex);
 
         Plane plane = new Plane(topLeft, bottomRight, otherPoint);
-        plane.Raycast(new Ray(new Vector3(column, 0, row), Vector3.up), out float distance);
+        plane.Raycast(new Ray(new Vector3(column, 0f, row), Vector3.up), out float distance);
         return distance;
     }
 }
