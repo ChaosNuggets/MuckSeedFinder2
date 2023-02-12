@@ -15,7 +15,7 @@ public static class HeightCurve
         return Mathf.Lerp(heightCurve[f_floor], heightCurve[f_ceil], f - f_floor);
     }
 
-    // I give up on trying to recreate the height curve so this is what I'm going to do instead
+    // I give up on trying to recreate the height curve so this is what I'm going to do instead (these values are x1000)
     private static readonly Dictionary<int, float> heightCurve = new Dictionary<int, float>()
     {
         {0, 0f},

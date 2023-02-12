@@ -3,25 +3,45 @@ using UnityEngine;
 public class HeightMap
 {
     private readonly float[,] heightMap;
+    public const int MAP_CHUNK_SIZE = 241;
+    public const int WORLD_SCALE = 12;
 
-    public HeightMap(float[,] heightMap)
+    public HeightMap(int seed)
     {
-        this.heightMap = heightMap;
-    }
+        const float HEIGHT_MULTIPLIER = 100f;
+        const float NOISE_SCALE = 20;
+        const int OCTAVES = 4;
+        const float PERSISTANCE = 0.1f;
+        const float LACUNARITY = 6;
+        const float BLEND = 0.01f;
+        const float BLEND_STRENGTH = 2;
+        Vector2 offset = new Vector2(0, 0);
 
+        heightMap = Noise.GenerateNoiseMap(MAP_CHUNK_SIZE, MAP_CHUNK_SIZE, seed, NOISE_SCALE, OCTAVES, PERSISTANCE, LACUNARITY, BLEND, BLEND_STRENGTH, offset);
+        float[,] falloffMap = FalloffGenerator.GenerateFalloffMap(MAP_CHUNK_SIZE);
+        for (int index1 = 0; index1 < MAP_CHUNK_SIZE; ++index1)
+        {
+            for (int index2 = 0; index2 < MAP_CHUNK_SIZE; ++index2)
+            {
+                heightMap[index2, index1] = Mathf.Clamp(heightMap[index2, index1] - falloffMap[index2, index1], 0.0f, 1f);
+                heightMap[index2, index1] = HeightCurve.Evaluate(heightMap[index2, index1]) * HEIGHT_MULTIPLIER;
+            }
+        }
+    }
+    
     private static (float, float) IndexToCoord(float row, float column)
     {
         // THIS IS WHAT THESE VARIABLES ARE CALLED IN MUCK'S SOURCE CODE PLEASE DON'T BULLY ME GO BULLY DANI
-        float num1 = (float) (MapGenerator.MAP_CHUNK_SIZE - 1) / -2f;
-        float num2 = (float) (MapGenerator.MAP_CHUNK_SIZE - 1) / 2f;
-        return ((num1 + row) * MapGenerator.WORLD_SCALE, (num2 - column) * MapGenerator.WORLD_SCALE);
+        float num1 = (float)(MAP_CHUNK_SIZE - 1) / -2f;
+        float num2 = (float)(MAP_CHUNK_SIZE - 1) / 2f;
+        return ((num1 + row) * WORLD_SCALE, (num2 - column) * WORLD_SCALE);
     }
-    
+
     private static (float, float) CoordToIndex(float x, float z)
     {
-        float num1 = (float) (MapGenerator.MAP_CHUNK_SIZE - 1) / -2f;
-        float num2 = (float) (MapGenerator.MAP_CHUNK_SIZE - 1) / 2f;
-        return (x / MapGenerator.WORLD_SCALE - num1, num2 - z / MapGenerator.WORLD_SCALE);
+        float num1 = (float)(MAP_CHUNK_SIZE - 1) / -2f;
+        float num2 = (float)(MAP_CHUNK_SIZE - 1) / 2f;
+        return (x / WORLD_SCALE - num1, num2 - z / WORLD_SCALE);
     }
 
     public float CoordToHeightFast(float x, float z)
@@ -54,7 +74,7 @@ public class HeightMap
 
         float topHeight = Mathf.Lerp(topLeftHeight, topRightHeight, horizontalT);
         float bottomHeight = Mathf.Lerp(bottomLeftHeight, bottomRightHeight, horizontalT);
-    
+
         return Mathf.Lerp(topHeight, bottomHeight, verticalT);
     }
 
@@ -71,7 +91,7 @@ public class HeightMap
     //    float topRightHeight = heightMap[topIndex, rightIndex];
     //    float bottomRightHeight = heightMap[bottomIndex, rightIndex];
     //    float bottomLeftHeight = heightMap[bottomIndex, leftIndex];
-   
+
     //    Vector3 topLeft = new Vector3(leftIndex, topLeftHeight, topIndex);
     //    Vector3 bottomRight = new Vector3(rightIndex, bottomRightHeight, bottomIndex);
     //    Vector3 otherPoint = row - topIndex > column - leftIndex // Test which triangle the index is in
@@ -99,7 +119,7 @@ public class HeightMap
         float topRightHeight = heightMap[topIndex, rightIndex];
         float bottomRightHeight = heightMap[bottomIndex, rightIndex];
         float bottomLeftHeight = heightMap[bottomIndex, leftIndex];
-   
+
         Vector3 topLeft = new Vector3(leftIndex, topLeftHeight, topIndex);
         Vector3 bottomRight = new Vector3(rightIndex, bottomRightHeight, bottomIndex);
         Vector3 otherPoint = row - topIndex > column - leftIndex // Test which triangle the index is in
