@@ -64,15 +64,10 @@ public class HeightMap
     // This treats the heightmap as squares
     public float IndexToHeightFast(float row, float column)
     {
-        int topIndex = Mathf.FloorToInt(row);
-        int leftIndex = Mathf.FloorToInt(column);
-        int bottomIndex = Mathf.CeilToInt(row);
-        int rightIndex = Mathf.CeilToInt(column);
-
-        float topLeftHeight = heightMap[topIndex, leftIndex];
-        float topRightHeight = heightMap[topIndex, rightIndex];
-        float bottomRightHeight = heightMap[bottomIndex, rightIndex];
-        float bottomLeftHeight = heightMap[bottomIndex, leftIndex];
+        var (topIndex, leftIndex, bottomIndex, rightIndex)
+            = GetSquare(row, column);
+        var (topRightHeight, topLeftHeight, bottomLeftHeight, bottomRightHeight)
+            = GetHeights(topIndex, leftIndex, bottomIndex, rightIndex);
 
         float horizontalT = column - leftIndex;
         float verticalT = row - topIndex;
@@ -114,25 +109,48 @@ public class HeightMap
     // This treats the heightmap as triangles
     public float IndexToHeightPrecise(float row, float column)
     {
-        // DON'T GET CONFUSED, ROW GOES DOWN. SO BOTTOM_INDEX > TOP_INDEX
-        int topIndex = Mathf.FloorToInt(row);
-        int leftIndex = Mathf.FloorToInt(column);
-        int bottomIndex = Mathf.CeilToInt(row);
-        int rightIndex = Mathf.CeilToInt(column);
+        Plane plane = GetPlane(row, column);
+        plane.Raycast(new Ray(new Vector3(column, 0f, row), Vector3.up), out float distance);
+        return distance;
+    }
 
-        float topLeftHeight = heightMap[topIndex, leftIndex];
-        float topRightHeight = heightMap[topIndex, rightIndex];
-        float bottomRightHeight = heightMap[bottomIndex, rightIndex];
-        float bottomLeftHeight = heightMap[bottomIndex, leftIndex];
-
+    private Plane GetPlane(float row, float column)
+    {
+        var (topIndex, leftIndex, bottomIndex, rightIndex)
+            = GetSquare(row, column);
+        var (topRightHeight, topLeftHeight, bottomLeftHeight, bottomRightHeight)
+            = GetHeights(topIndex, leftIndex, bottomIndex, rightIndex);
+        
         Vector3 topLeft = new Vector3(leftIndex, topLeftHeight, topIndex);
         Vector3 bottomRight = new Vector3(rightIndex, bottomRightHeight, bottomIndex);
         Vector3 otherPoint = row - topIndex > column - leftIndex // Test which triangle the index is in
             ? new Vector3(leftIndex, bottomLeftHeight, bottomIndex)
             : new Vector3(rightIndex, topRightHeight, topIndex);
 
-        Plane plane = new Plane(topLeft, bottomRight, otherPoint);
-        plane.Raycast(new Ray(new Vector3(column, 0f, row), Vector3.up), out float distance);
-        return distance;
+        return new Plane(topLeft, bottomRight, otherPoint);
+    }
+
+    private (int, int, int, int) GetSquare(float row, float column)
+    {
+        // DON'T GET CONFUSED, ROW GOES DOWN. SO BOTTOM_INDEX > TOP_INDEX
+        int topIndex = Mathf.FloorToInt(row);
+        int leftIndex = Mathf.FloorToInt(column);
+        int bottomIndex = Mathf.CeilToInt(row);
+        int rightIndex = Mathf.CeilToInt(column);
+
+        if (bottomIndex == topIndex) bottomIndex++;
+        if (rightIndex == leftIndex) rightIndex++;
+        
+        return (topIndex, leftIndex, bottomIndex, rightIndex);
+    }
+
+    private (float, float, float, float) GetHeights(int topIndex, int leftIndex, int bottomIndex, int rightIndex)
+    {
+        float topRightHeight = heightMap[topIndex, rightIndex];
+        float topLeftHeight = heightMap[topIndex, leftIndex];
+        float bottomLeftHeight = heightMap[bottomIndex, leftIndex];
+        float bottomRightHeight = heightMap[bottomIndex, rightIndex];
+
+        return (topRightHeight, topLeftHeight, bottomLeftHeight, bottomRightHeight);
     }
 }
