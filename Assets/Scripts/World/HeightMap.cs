@@ -163,7 +163,12 @@ public class HeightMap
         ray.origin = CoordToIndex(ray.origin);
         ray.direction = CoordToIndex(ray.direction);
 
-        return IndexRaycast(ray, out hitPoint);
+        // Do magic
+        bool didHit = IndexRaycast(ray, out hitPoint);
+
+        // Convert back to coord units
+        hitPoint = IndexToCoord(hitPoint);
+        return didHit;
     }
 
     public bool IndexRaycast(Ray ray, out Vector3 hitPoint)
@@ -185,6 +190,7 @@ public class HeightMap
             {
                 return true;
             }
+
             // If it doesn't intersect or if the intersection point is on a different plane, move to the next plane.
             currentTriangle = CalculateNextTriangle(currentTriangle, ray);
         }
