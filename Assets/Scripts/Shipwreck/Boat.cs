@@ -12,8 +12,7 @@ public static class Boat
         Vector3 origin = new Vector3(x, 0f, z).normalized * HeightMap.WORLD_SCALE * ((float)HeightMap.MAP_CHUNK_SIZE / 2f);
         Vector3 direction = Vector3.zero - origin;
         origin.y = heightMap.CoordToHeightPrecise(x, z) + 1;
-        return origin;
-        //RaycastHit hitInfo2;
-        //return Physics.Raycast(origin, normalized, out hitInfo2, 5000f, (int) this.whatIsLand) ? hitInfo2.point : Vector3.zero;
+        heightMap.CoordRaycast(new Ray(origin, direction), out Vector3 hitPoint);
+        return hitPoint;
     }
 }

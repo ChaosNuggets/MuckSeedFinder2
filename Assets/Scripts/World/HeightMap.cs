@@ -36,7 +36,6 @@ public class HeightMap
 
     private static (float, float) IndexToCoord(float row, float column)
     {
-        // THIS IS WHAT THESE VARIABLES ARE CALLED IN MUCK'S SOURCE CODE PLEASE DON'T BULLY ME GO BULLY DANI
         float num1 = (MAP_CHUNK_SIZE - 1) / -2f;
         float num2 = (MAP_CHUNK_SIZE - 1) / 2f;
         return ((num1 + row) * WORLD_SCALE, (num2 - column) * WORLD_SCALE);
