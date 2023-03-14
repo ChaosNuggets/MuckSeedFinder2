@@ -156,14 +156,14 @@ public class HeightMap
 
     // If ray enters the surface, return point where it hits
     // Otherwise, return null (if it goes out of the bounds of the array)
-    public bool CoordRaycast(Ray ray, out Vector3 hitPoint)
+    public bool CoordRaycast(Vector3 origin, Vector3 pointAlongRay, out Vector3 hitPoint)
     {
         // Convert ray to index units
-        ray.origin = CoordToIndex(ray.origin);
-        ray.direction = CoordToIndex(ray.direction);
+        origin = CoordToIndex(origin);
+        pointAlongRay = CoordToIndex(pointAlongRay);
 
         // Do magic
-        bool didHit = IndexRaycast(ray, out hitPoint);
+        bool didHit = IndexRaycast(new Ray(origin, pointAlongRay - origin), out hitPoint);
 
         // Convert back to coord units
         hitPoint = IndexToCoord(hitPoint);
@@ -204,11 +204,14 @@ public class HeightMap
 
         // Test each edge of the triangle until we find an edge which the ray intersects with.
         // If the ray intersects with the left, move left. If the ray intersects with the bottom, move down, etc.
+        // The previous move variable helps prevent it from switching back and forth between two triangles
         LineSegment topOrLeft = new LineSegment(topLeft, otherPoint);
         if (LineSegment.doesIntersect(topOrLeft, ray))
         {
-            if (currentTriangle.isTopTriangle) // This would be testing top
+            // This is testing top
+            if (currentTriangle.isTopTriangle && previousMove != PreviousMove.Down)
             {
+                previousMove = PreviousMove.Up;
                 return new Triangle(
                     currentTriangle.topIndex - 1,
                     currentTriangle.leftIndex,
@@ -217,21 +220,27 @@ public class HeightMap
                     false
                 );
             }
-            // This would be testing left
-            return new Triangle(
-                currentTriangle.topIndex,
-                currentTriangle.leftIndex - 1,
-                currentTriangle.bottomIndex,
-                currentTriangle.rightIndex - 1,
-                true
-            );
+            // This is testing left
+            if (!currentTriangle.isTopTriangle && previousMove != PreviousMove.Right)
+            {
+                previousMove = PreviousMove.Left;
+                return new Triangle(
+                    currentTriangle.topIndex,
+                    currentTriangle.leftIndex - 1,
+                    currentTriangle.bottomIndex,
+                    currentTriangle.rightIndex - 1,
+                    true
+                );
+            }
         }
 
         LineSegment rightOrBottom = new LineSegment(bottomRight, otherPoint);
         if (LineSegment.doesIntersect(rightOrBottom, ray))
         {
-            if (currentTriangle.isTopTriangle) // This would be testing right
+            // This is testing right
+            if (currentTriangle.isTopTriangle && previousMove != PreviousMove.Left)
             {
+                previousMove = PreviousMove.Right;
                 return new Triangle(
                     currentTriangle.topIndex,
                     currentTriangle.leftIndex + 1,
@@ -240,17 +249,22 @@ public class HeightMap
                     false
                 );
             }
-            // This would be testing bottom
-            return new Triangle(
-                currentTriangle.topIndex + 1,
-                currentTriangle.leftIndex,
-                currentTriangle.bottomIndex + 1,
-                currentTriangle.rightIndex,
-                true
-            );
+            // This is testing bottom
+            if (!currentTriangle.isTopTriangle && previousMove != PreviousMove.Up)
+            {
+                previousMove = PreviousMove.Down;
+                return new Triangle(
+                    currentTriangle.topIndex + 1,
+                    currentTriangle.leftIndex,
+                    currentTriangle.bottomIndex + 1,
+                    currentTriangle.rightIndex,
+                    true
+                );
+            }
         }
 
         // If it intersects with the diagonal line
+        previousMove = PreviousMove.Diagonal;
         return new Triangle(
             currentTriangle.topIndex,
             currentTriangle.leftIndex,
@@ -259,4 +273,16 @@ public class HeightMap
             !currentTriangle.isTopTriangle
         );
     }
+
+    private enum PreviousMove
+    {
+        None,
+        Left,
+        Right,
+        Up,
+        Down,
+        Diagonal
+    }
+
+    private PreviousMove previousMove = PreviousMove.None;
 }
