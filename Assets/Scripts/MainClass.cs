@@ -24,7 +24,7 @@ public class MainClass : MonoBehaviour
         Debug.Log(heightMap.CoordToHeightPrecise(-478.1f, -1102.4f)); // Should print 0.0000
         Debug.Log(heightMap.CoordToHeightPrecise(-427.6f, -981.8f)); // Should print 3.6089
         Debug.Log(heightMap.CoordToHeightPrecise(-17.3f, 5.5f)); // Should print 27.8761
-        Debug.Log(Boat.CalculateBoatPosition(SEED, heightMap));
+        Debug.Log(Boat.CalculateBoatPosition(SEED, heightMap).ToString("F5"));
     }
 
     //private void Awake()
