@@ -33,7 +33,7 @@ public class HeightMap
     {
         this.heightMap = heightMap;
     }
-    
+
     private static (float, float) IndexToCoord(float row, float column)
     {
         // THIS IS WHAT THESE VARIABLES ARE CALLED IN MUCK'S SOURCE CODE PLEASE DON'T BULLY ME GO BULLY DANI
@@ -77,7 +77,7 @@ public class HeightMap
     public float IndexToHeightFast(float row, float column)
     {
         var (topIndex, leftIndex, bottomIndex, rightIndex)
-            = GetSquare(row, column);
+            = Triangle.GetSquare(row, column);
         var (topRightHeight, topLeftHeight, bottomLeftHeight, bottomRightHeight)
             = GetSquareHeights(topIndex, leftIndex, bottomIndex, rightIndex);
 
@@ -128,15 +128,14 @@ public class HeightMap
 
     private Plane GetPlane(float row, float column)
     {
-        Triangle triangle = GetTriangle(row, column);
-        return GetPlane(row, column, triangle);
+        return GetPlane(new Triangle(row, column));
     }
-    
-    private Plane GetPlane(float row, float column, Triangle triangle)
+
+    private Plane GetPlane(Triangle triangle)
     {
         var (topRightHeight, topLeftHeight, bottomLeftHeight, bottomRightHeight)
             = GetSquareHeights(triangle.topIndex, triangle.leftIndex, triangle.bottomIndex, triangle.rightIndex);
-        
+
         Vector3 topLeft = new Vector3(triangle.leftIndex, topLeftHeight, triangle.topIndex);
         Vector3 bottomRight = new Vector3(triangle.rightIndex, bottomRightHeight, triangle.bottomIndex);
         Vector3 otherPoint = triangle.isTopTriangle
@@ -144,30 +143,6 @@ public class HeightMap
             : new Vector3(triangle.leftIndex, bottomLeftHeight, triangle.bottomIndex);
 
         return new Plane(topLeft, bottomRight, otherPoint);
-    }
-
-    private static Triangle GetTriangle(float row, float column)
-    {
-        Triangle triangle;
-        (triangle.topIndex, triangle.leftIndex, triangle.bottomIndex, triangle.rightIndex)
-            = GetSquare(row, column);
-        triangle.isTopTriangle = row - triangle.topIndex < column - triangle.leftIndex;
-
-        return triangle;
-    }
-
-    private static (int, int, int, int) GetSquare(float row, float column)
-    {
-        // DON'T GET CONFUSED, ROW GOES DOWN. SO BOTTOM_INDEX > TOP_INDEX
-        int topIndex = Mathf.FloorToInt(row);
-        int leftIndex = Mathf.FloorToInt(column);
-        int bottomIndex = Mathf.CeilToInt(row);
-        int rightIndex = Mathf.CeilToInt(column);
-
-        if (bottomIndex == topIndex) bottomIndex++;
-        if (rightIndex == leftIndex) rightIndex++;
-        
-        return (topIndex, leftIndex, bottomIndex, rightIndex);
     }
 
     private (float, float, float, float) GetSquareHeights(int topIndex, int leftIndex, int bottomIndex, int rightIndex)
@@ -182,26 +157,101 @@ public class HeightMap
 
     // If ray enters the surface, return point where it hits
     // Otherwise, return null (if it goes out of the bounds of the array)
-    public Vector3 CoordRaycast(Ray ray)
+    public bool CoordRaycast(Ray ray, out Vector3 hitPoint)
     {
         // Convert ray to index units
         ray.origin = CoordToIndex(ray.origin);
         ray.direction = CoordToIndex(ray.direction);
 
-        return IndexRaycast(ray);
+        return IndexRaycast(ray, out hitPoint);
     }
 
-    public Vector3 IndexRaycast(Ray ray)
+    public bool IndexRaycast(Ray ray, out Vector3 hitPoint)
     {
         // Row is z, column is x
-        // Start at ray origin. Get the current plane and see if it intersects
-        Triangle currentTriangle = GetTriangle(ray.origin.z, ray.origin.x);
-        Plane currentPlane = GetPlane(ray.origin.z, ray.origin.x, currentTriangle);
-        currentPlane.Raycast(ray, out float distance);
-        Vector3 hitPoint = ray.GetPoint(distance);
-        // If it does intersect, see if what plane the point is a part of. If it's part of the same plane, return that point.
-        // If it doesn't intersect or if the intersection point is on a different plane, move to the next plane.
+        // Start at ray origin
+        Triangle currentTriangle = new Triangle(ray.origin.z, ray.origin.x);
 
-        return Vector3.zero;
+        while (true) // TODO: handle out of bounds of array stuff 
+        {
+            // Get the current plane and see if it intersects
+            Plane currentPlane = GetPlane(currentTriangle);
+            bool didHit = currentPlane.Raycast(ray, out float distance);
+            hitPoint = ray.GetPoint(distance);
+
+            // If it does intersect, see if what plane the point is a part of. If it's part of the same plane, return that point.
+            Triangle hitTriangle = new Triangle(hitPoint.z, hitPoint.x);
+            if (didHit && hitTriangle == currentTriangle)
+            {
+                return true;
+            }
+            // If it doesn't intersect or if the intersection point is on a different plane, move to the next plane.
+            currentTriangle = CalculateNextTriangle(currentTriangle, ray);
+        }
+
+        return false;
+    }
+
+    private Triangle CalculateNextTriangle(Triangle currentTriangle, Ray ray)
+    {
+        // Create the lines
+        var (topLeft, bottomRight, otherPoint) = currentTriangle.GetVertices();
+
+        // Test each edge of the triangle until we find an edge which the ray intersects with.
+        // If the ray intersects with the left, move left. If the ray intersects with the bottom, move down, etc.
+        LineSegment topOrLeft = new LineSegment(topLeft, otherPoint);
+        if (LineSegment.doesIntersect(topOrLeft, ray))
+        {
+            if (currentTriangle.isTopTriangle) // This would be testing top
+            {
+                return new Triangle(
+                    currentTriangle.topIndex - 1,
+                    currentTriangle.leftIndex,
+                    currentTriangle.bottomIndex - 1,
+                    currentTriangle.rightIndex,
+                    false
+                );
+            }
+            // This would be testing left
+            return new Triangle(
+                currentTriangle.topIndex,
+                currentTriangle.leftIndex - 1,
+                currentTriangle.bottomIndex,
+                currentTriangle.rightIndex - 1,
+                true
+            );
+        }
+
+        LineSegment rightOrBottom = new LineSegment(bottomRight, otherPoint);
+        if (LineSegment.doesIntersect(rightOrBottom, ray))
+        {
+            if (currentTriangle.isTopTriangle) // This would be testing right
+            {
+                return new Triangle(
+                    currentTriangle.topIndex,
+                    currentTriangle.leftIndex + 1,
+                    currentTriangle.bottomIndex,
+                    currentTriangle.rightIndex + 1,
+                    false
+                );
+            }
+            // This would be testing bottom
+            return new Triangle(
+                currentTriangle.topIndex + 1,
+                currentTriangle.leftIndex,
+                currentTriangle.bottomIndex + 1,
+                currentTriangle.rightIndex,
+                true
+            );
+        }
+
+        // If it intersects with the diagonal line
+        return new Triangle(
+            currentTriangle.topIndex,
+            currentTriangle.leftIndex,
+            currentTriangle.bottomIndex,
+            currentTriangle.rightIndex,
+            !currentTriangle.isTopTriangle
+        );
     }
 }
