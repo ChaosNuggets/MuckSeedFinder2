@@ -154,8 +154,9 @@ public class HeightMap
         return (topRightHeight, topLeftHeight, bottomLeftHeight, bottomRightHeight);
     }
 
-    // If ray enters the surface, return point where it hits
-    // Otherwise, return null (if it goes out of the bounds of the array)
+    // If there is a hit, return true and set hitPoint to be where it hit
+    // Otherwise, return false and set hitPoint to IndexToCoord(new Vector3(0, 0, 0))
+    // This will return false if origin is outside the height map.
     public bool CoordRaycast(Vector3 origin, Vector3 pointAlongRay, out Vector3 hitPoint)
     {
         // Convert ray to index units
@@ -292,5 +293,4 @@ public class HeightMap
         Down,
         Diagonal
     }
-
 }
