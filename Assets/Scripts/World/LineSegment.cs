@@ -45,22 +45,23 @@ public struct LineSegment
         if (dir1 != dir2 && dir3 != dir4)
             return true;
 
-        // When point2 of line2 are on the line1
-        if (dir1 == 0 && onLine(line1, line2.point1))
-            return true;
-
-        // When point1 of line2 are on the line1
-        if (dir2 == 0 && onLine(line1, line2.point2))
-            return true;
-
-        // When point2 of line1 are on the line2
-        if (dir3 == 0 && onLine(line2, line1.point1))
-            return true;
-
-        // When point1 of line1 are on the line2
-        if (dir4 == 0 && onLine(line2, line1.point2))
-            return true;
-
+        // This is commented out because we don't want to count parallel lines as intersecting
+//        // When point2 of line2 are on the line1
+//        if (dir1 == 0 && onLine(line1, line2.point1))
+//            return true;
+//
+//        // When point1 of line2 are on the line1
+//        if (dir2 == 0 && onLine(line1, line2.point2))
+//            return true;
+//
+//        // When point2 of line1 are on the line2
+//        if (dir3 == 0 && onLine(line2, line1.point1))
+//            return true;
+//
+//        // When point1 of line1 are on the line2
+//        if (dir4 == 0 && onLine(line2, line1.point2))
+//            return true;
+//
         return false;
     }
 

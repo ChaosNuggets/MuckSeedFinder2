@@ -27,8 +27,8 @@ public class MainClass : MonoBehaviour
         Debug.Log(Boat.CalculateBoatPosition(SEED, heightMap).ToString("F5")); // Should print (-428.84430, 10.28744, -940.10740)
         Debug.Log(heightMap.CoordRaycast(new Vector3(-500, 500, 1235), Vector3.zero, out Vector3 hitPoint));
         Debug.Log(hitPoint);
-        Debug.Log(heightMap.CoordRaycast(new Vector3(0, 500, 0), new Vector3(23, 500, 0), out Vector3 hitPoint2));
-        Debug.Log(hitPoint2);
+        //Debug.Log(heightMap.CoordRaycast(new Vector3(0, 500, 0), new Vector3(23, 500, 0), out Vector3 hitPoint2));
+        //Debug.Log(hitPoint2);
     }
 
     //private void Awake()
