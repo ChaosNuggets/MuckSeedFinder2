@@ -66,10 +66,10 @@ public class HeightMap
         return IndexToHeightFast(row, column);
     }
 
-    public float CoordToHeightPrecise(float x, float z)
+    public float CoordToHeight(float x, float z)
     {
         var (row, column) = CoordToIndex(x, z);
-        return IndexToHeightPrecise(row, column);
+        return IndexToHeight(row, column);
     }
 
     // This treats the heightmap as squares
@@ -118,7 +118,7 @@ public class HeightMap
     //}
 
     // This treats the heightmap as triangles
-    public float IndexToHeightPrecise(float row, float column)
+    public float IndexToHeight(float row, float column)
     {
         Plane plane = GetPlane(row, column);
         plane.Raycast(new Ray(new Vector3(column, 0f, row), Vector3.up), out float distance);
