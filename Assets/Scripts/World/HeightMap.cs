@@ -173,7 +173,7 @@ public class HeightMap
     public bool IndexRaycast(Ray ray, out Vector3 hitPoint)
     {
         // Row is z, column is x
-        Ray2D ray2D = new Ray2D(ray);
+        SuperiorRay2D ray2D = new SuperiorRay2D(ray);
         PreviousMove previousMove = PreviousMove.None;
     
         // Start at ray origin
@@ -206,7 +206,7 @@ public class HeightMap
             && 0 <= triangle.leftIndex && triangle.rightIndex < heightMap.GetLength(1);
     }
 
-    private Triangle CalculateNextTriangle(Triangle currentTriangle, Ray2D ray2D, ref PreviousMove previousMove)
+    private Triangle CalculateNextTriangle(Triangle currentTriangle, SuperiorRay2D ray2D, ref PreviousMove previousMove)
     {
         // Create the lines
         var (topLeft, bottomRight, otherPoint) = currentTriangle.GetVertices();

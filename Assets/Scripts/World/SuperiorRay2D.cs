@@ -1,11 +1,11 @@
 using UnityEngine;
 
-public struct Ray2D
+public struct SuperiorRay2D
 {
     public readonly Vector2 origin;
     public readonly Vector2 direction;
 
-    public Ray2D(Ray ray)
+    public SuperiorRay2D(Ray ray)
     {
         origin = VectorConvert.ToVector2(ray.origin);
         direction = VectorConvert.ToVector2(ray.direction).normalized;
