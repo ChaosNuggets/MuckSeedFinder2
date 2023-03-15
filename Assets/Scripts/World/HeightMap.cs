@@ -173,10 +173,12 @@ public class HeightMap
     public bool IndexRaycast(Ray ray, out Vector3 hitPoint)
     {
         // Row is z, column is x
+        Ray2D ray2D = new Ray2D(ray);
+        PreviousMove previousMove = PreviousMove.None;
+    
         // Start at ray origin
         Triangle currentTriangle = new Triangle(ray.origin.z, ray.origin.x);
-
-        while (true) // TODO: handle out of bounds of array stuff 
+        while (IsInBounds(currentTriangle))
         {
             // Get the current plane and see if it intersects
             Plane currentPlane = GetPlane(currentTriangle);
@@ -191,13 +193,20 @@ public class HeightMap
             }
 
             // If it doesn't intersect or if the intersection point is on a different plane, move to the next plane.
-            currentTriangle = CalculateNextTriangle(currentTriangle, ray);
+            currentTriangle = CalculateNextTriangle(currentTriangle, ray2D, ref previousMove);
         }
 
+        hitPoint = Vector3.zero;
         return false;
     }
 
-    private Triangle CalculateNextTriangle(Triangle currentTriangle, Ray ray)
+    private bool IsInBounds(Triangle triangle)
+    {
+        return 0 <= triangle.topIndex && triangle.bottomIndex < heightMap.GetLength(0)
+            && 0 <= triangle.leftIndex && triangle.rightIndex < heightMap.GetLength(1);
+    }
+
+    private Triangle CalculateNextTriangle(Triangle currentTriangle, Ray2D ray2D, ref PreviousMove previousMove)
     {
         // Create the lines
         var (topLeft, bottomRight, otherPoint) = currentTriangle.GetVertices();
@@ -206,7 +215,7 @@ public class HeightMap
         // If the ray intersects with the left, move left. If the ray intersects with the bottom, move down, etc.
         // The previous move variable helps prevent it from switching back and forth between two triangles
         LineSegment topOrLeft = new LineSegment(topLeft, otherPoint);
-        if (LineSegment.doesIntersect(topOrLeft, ray))
+        if (LineSegment.doesIntersect(topOrLeft, ray2D))
         {
             // This is testing top
             if (currentTriangle.isTopTriangle && previousMove != PreviousMove.Down)
@@ -235,7 +244,7 @@ public class HeightMap
         }
 
         LineSegment rightOrBottom = new LineSegment(bottomRight, otherPoint);
-        if (LineSegment.doesIntersect(rightOrBottom, ray))
+        if (LineSegment.doesIntersect(rightOrBottom, ray2D))
         {
             // This is testing right
             if (currentTriangle.isTopTriangle && previousMove != PreviousMove.Left)
@@ -284,5 +293,4 @@ public class HeightMap
         Diagonal
     }
 
-    private PreviousMove previousMove = PreviousMove.None;
 }

@@ -64,9 +64,9 @@ public struct LineSegment
         return false;
     }
 
-    public static bool doesIntersect(LineSegment line, Ray ray)
+    public static bool doesIntersect(LineSegment line, Ray2D ray2D)
     {
-        Vector2 farPoint = VectorConvert.ToVector2(ray.GetPoint(100));
-        return doesIntersect(line, new LineSegment(VectorConvert.ToVector2(ray.origin), farPoint));
+        Vector2 farPoint = ray2D.GetPoint(HeightMap.MAP_CHUNK_SIZE * 2); // MAP_CHUNK_SIZE * 2 is greater than the diagonal length of the heightMap
+        return doesIntersect(line, new LineSegment(ray2D.origin, farPoint));
     }
 }
