@@ -10,7 +10,7 @@ public struct Triangle
     {
         (topIndex, leftIndex, bottomIndex, rightIndex)
             = GetSquare(row, column);
-        isTopTriangle = row - topIndex < column - leftIndex; // Basically if y is greater than x (remember y goes down), it's the left triangle, and vice versa
+        isTopTriangle = row - topIndex < column - leftIndex; // Basically if y is less than x (remember y goes down), it's the top triangle, and vice versa
     }
 
     // ya like boilerplate code?
