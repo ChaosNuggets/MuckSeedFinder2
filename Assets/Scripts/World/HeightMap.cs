@@ -15,7 +15,7 @@ public class HeightMap
         const float LACUNARITY = 6f;
         const float BLEND = 0.01f;
         const float BLEND_STRENGTH = 2f;
-        Vector2 offset = new Vector2(0f, 0f);
+        Vector2 offset = new(0f, 0f);
 
         heightMap = Noise.GenerateNoiseMap(MAP_CHUNK_SIZE, MAP_CHUNK_SIZE, seed, NOISE_SCALE, OCTAVES, PERSISTANCE, LACUNARITY, BLEND, BLEND_STRENGTH, offset);
         float[,] falloffMap = FalloffGenerator.GenerateFalloffMap(MAP_CHUNK_SIZE);
@@ -89,35 +89,6 @@ public class HeightMap
         return Mathf.Lerp(topHeight, bottomHeight, verticalT);
     }
 
-    // This is a backup that does all the plane math manually
-    //public float IndexToHeightPrecise(float row, float column)
-    //{
-    //    // DON'T GET CONFUSED, ROW GOES DOWN. SO BOTTOM_INDEX > TOP_INDEX
-    //    int topIndex = Mathf.FloorToInt(row);
-    //    int leftIndex = Mathf.FloorToInt(column);
-    //    int bottomIndex = Mathf.CeilToInt(row);
-    //    int rightIndex = Mathf.CeilToInt(column);
-
-    //    float topLeftHeight = heightMap[topIndex, leftIndex];
-    //    float topRightHeight = heightMap[topIndex, rightIndex];
-    //    float bottomRightHeight = heightMap[bottomIndex, rightIndex];
-    //    float bottomLeftHeight = heightMap[bottomIndex, leftIndex];
-
-    //    Vector3 topLeft = new Vector3(leftIndex, topLeftHeight, topIndex);
-    //    Vector3 bottomRight = new Vector3(rightIndex, bottomRightHeight, bottomIndex);
-    //    Vector3 otherPoint = row - topIndex > column - leftIndex // Test which triangle the index is in
-    //        ? new Vector3(rightIndex, bottomLeftHeight, topIndex)
-    //        : new Vector3(leftIndex, topRightHeight, bottomIndex);
-
-    //    Vector3 vec1 = topLeft - otherPoint;
-    //    Vector3 vec2 = bottomRight - otherPoint;
-    //    Vector3 normal = Vector3.Cross(vec1, vec2);
-
-    //    float d = Vector3.Dot(normal, topLeft); // d when the plane is in the form ax + by + cz = d
-    //    return (d - normal.x * column - normal.z * row) / normal.y;
-    //}
-
-    // This treats the heightmap as triangles
     public float IndexToHeight(float row, float column)
     {
         Plane plane = GetPlane(row, column);
@@ -135,11 +106,11 @@ public class HeightMap
         var (topRightHeight, topLeftHeight, bottomLeftHeight, bottomRightHeight)
             = GetSquareHeights(triangle.topIndex, triangle.leftIndex, triangle.bottomIndex, triangle.rightIndex);
 
-        Vector3 topLeft = new Vector3(triangle.leftIndex, topLeftHeight, triangle.topIndex);
-        Vector3 bottomRight = new Vector3(triangle.rightIndex, bottomRightHeight, triangle.bottomIndex);
+        Vector3 topLeft = new(triangle.leftIndex, topLeftHeight, triangle.topIndex);
+        Vector3 bottomRight = new(triangle.rightIndex, bottomRightHeight, triangle.bottomIndex);
         Vector3 otherPoint = triangle.isTopTriangle
-            ? new Vector3(triangle.rightIndex, topRightHeight, triangle.topIndex)
-            : new Vector3(triangle.leftIndex, bottomLeftHeight, triangle.bottomIndex);
+            ? new(triangle.rightIndex, topRightHeight, triangle.topIndex)
+            : new(triangle.leftIndex, bottomLeftHeight, triangle.bottomIndex);
 
         return new Plane(topLeft, bottomRight, otherPoint);
     }
@@ -174,11 +145,11 @@ public class HeightMap
     public bool IndexRaycast(Ray ray, out Vector3 hitPoint)
     {
         // Row is z, column is x
-        SuperiorRay2D ray2D = new SuperiorRay2D(ray);
+        SuperiorRay2D ray2D = new(ray);
         PreviousMove previousMove = PreviousMove.None;
     
         // Start at ray origin
-        Triangle currentTriangle = new Triangle(ray.origin.z, ray.origin.x);
+        Triangle currentTriangle = new(ray.origin.z, ray.origin.x);
         while (IsInBounds(currentTriangle))
         {
             // Get the current plane and see if it intersects
@@ -187,7 +158,7 @@ public class HeightMap
             hitPoint = ray.GetPoint(distance);
 
             // If it does intersect, see if what plane the point is a part of. If it's part of the same plane, return that point.
-            Triangle hitTriangle = new Triangle(hitPoint.z, hitPoint.x);
+            Triangle hitTriangle = new(hitPoint.z, hitPoint.x);
             if (didHit && hitTriangle == currentTriangle)
             {
                 return true;
@@ -215,8 +186,8 @@ public class HeightMap
         // Test each edge of the triangle until we find an edge which the ray intersects with.
         // If the ray intersects with the left, move left. If the ray intersects with the bottom, move down, etc.
         // The previous move variable helps prevent it from switching back and forth between two triangles
-        LineSegment topOrLeft = new LineSegment(topLeft, otherPoint);
-        if (LineSegment.doesIntersect(topOrLeft, ray2D))
+        LineSegment topOrLeft = new(topLeft, otherPoint);
+        if (LineSegment.DoesIntersect(topOrLeft, ray2D))
         {
             // This is testing top
             if (currentTriangle.isTopTriangle && previousMove != PreviousMove.Down)
@@ -244,8 +215,8 @@ public class HeightMap
             }
         }
 
-        LineSegment rightOrBottom = new LineSegment(bottomRight, otherPoint);
-        if (LineSegment.doesIntersect(rightOrBottom, ray2D))
+        LineSegment rightOrBottom = new(bottomRight, otherPoint);
+        if (LineSegment.DoesIntersect(rightOrBottom, ray2D))
         {
             // This is testing right
             if (currentTriangle.isTopTriangle && previousMove != PreviousMove.Left)

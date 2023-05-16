@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 // Token: 0x02000104 RID: 260
@@ -12,10 +11,10 @@ public static class FalloffGenerator
 		{
 			for (int j = 0; j < size; j++)
 			{
-				float f = (float)i / (float)size * 2f - 1f;
-				float f2 = (float)j / (float)size * 2f - 1f;
+				float f = (float)i / size * 2f - 1f;
+				float f2 = (float)j / size * 2f - 1f;
 				float value = Mathf.Max(Mathf.Abs(f), Mathf.Abs(f2));
-				array[i, j] = FalloffGenerator.Evaluate(value);
+				array[i, j] = Evaluate(value);
 			}
 		}
 		return array;

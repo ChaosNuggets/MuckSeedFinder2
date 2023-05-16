@@ -8,7 +8,7 @@ public static class Spawn
         const int SAND_LAYER_START = 14;
 
         Vector3 spawnCircleCenter = Vector3.zero;
-        Vector3 spawnPosition = new Vector3(0, 50, 0);
+        Vector3 spawnPosition = new(0, 50, 0);
 
         // Calculate spawnCircleCenter
         Random.InitState(seed);

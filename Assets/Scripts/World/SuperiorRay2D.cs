@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public struct SuperiorRay2D
+public readonly struct SuperiorRay2D
 {
     public readonly Vector2 origin;
     public readonly Vector2 direction;

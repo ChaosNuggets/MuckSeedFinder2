@@ -6,7 +6,7 @@ public static class CalculateItems
     const int BowIndex = 9;
     const int SpearIndex = 10;
     private const int ChestSize = 21;
-    private static int[] cells = new int[ChestSize];
+    private static readonly int[] cells = new int[ChestSize];
 
     private static readonly float[] dropChances =
     {
@@ -28,8 +28,8 @@ public static class CalculateItems
     // and then whether or not it's an actual god seed
     public static (bool, bool) IsGodSeed(int seed)
     {
-        ConsistentRandom rand = new ConsistentRandom(seed);
-        List<int> items = new List<int>();
+        ConsistentRandom rand = new(seed);
+        List<int> items = new();
         for (int i = 0; i < cells.Length; i++)
         {
             cells[i] = -1;
@@ -38,7 +38,7 @@ public static class CalculateItems
         // Go to next random number 9 times
         for (int i = 0; i < dropChances.Count(); i++)
         {
-            if (rand.NextDouble() < (double)dropChances[i])
+            if (rand.NextDouble() < dropChances[i])
             {
                 items.Add(i);
             }
@@ -54,7 +54,7 @@ public static class CalculateItems
 
     private static bool IsChestGood(List<int> items, ConsistentRandom rand)
     {
-        List<int> intList = new List<int>();
+        List<int> intList = new();
         for (int index = 0; index < ChestSize; index++)
         {
             intList.Add(index);

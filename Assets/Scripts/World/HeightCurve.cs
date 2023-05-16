@@ -8,7 +8,7 @@ public static class HeightCurve
 
     public static float Evaluate(float f)
     {
-        f *= Mathf.Pow(10f, (float)DECIMAL_PLACES);
+        f *= Mathf.Pow(10f, DECIMAL_PLACES);
         int f_ceil = Mathf.CeilToInt(f);
         int f_floor = Mathf.FloorToInt(f);
 
@@ -16,7 +16,7 @@ public static class HeightCurve
     }
 
     // I give up on trying to recreate the height curve so this is what I'm going to do instead (these values are x1000)
-    private static readonly Dictionary<int, float> heightCurve = new Dictionary<int, float>()
+    private static readonly Dictionary<int, float> heightCurve = new()
     {
         {0, 0f},
         {1, 2.203752E-06f},

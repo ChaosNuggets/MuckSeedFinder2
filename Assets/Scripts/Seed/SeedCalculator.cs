@@ -12,11 +12,11 @@ public class SeedCalculator
     private bool hasFoundPotentialGod = false;
     private readonly int[] increments =
     {
-            19,
-            1204, 1223, 1242, 1261, 1280,
-            7745, 7764,
-            9025, 9044
-        };
+        19,
+        1204, 1223, 1242, 1261, 1280,
+        7745, 7764,
+        9025, 9044
+    };
     private int incrementIndex = -1;
 
     public SeedCalculator(int startSeed)
@@ -78,8 +78,8 @@ public class SeedCalculator
                 return;
             }
         }
-        // Code should only reach this point if the currentMode = Mode.One
 
+        // Code should only reach this point if the currentMode = Mode.One
         currentSeed++;
     }
 }

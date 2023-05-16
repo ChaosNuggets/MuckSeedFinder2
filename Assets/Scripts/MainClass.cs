@@ -20,7 +20,7 @@ public class MainClass : MonoBehaviour
     private void Awake()
     {
         const int SEED = 1691052140;
-        HeightMap heightMap = new HeightMap(SEED);
+        HeightMap heightMap = new(SEED);
 
         // Coord to heights
         Debug.Log(heightMap.CoordToHeight(343.5f, -60.2f)); // Should print 1.3927
@@ -34,7 +34,7 @@ public class MainClass : MonoBehaviour
         Debug.Log(hitPoint);
         Debug.Log(heightMap.CoordRaycast(new Vector3(0, 500, 0), new Vector3(23, 500, 0), out Vector3 hitPoint2));
         Debug.Log(hitPoint2);
-        Debug.Log(heightMap.CoordRaycast(new Vector3(5000, 2, 24322), new Vector3(0, 0, 0), out Vector3 hitPoint3));
+        Debug.Log(heightMap.CoordRaycast(new Vector3(5000, 2, 24322), new Vector3(0, 0, 0), out _));
         
         // Spawn position
         Debug.Log(Spawn.FindSurvivalSpawnPosition(SEED, heightMap).ToString("F5")); // Should print (-17.30739, 28.87648, 5.51006)

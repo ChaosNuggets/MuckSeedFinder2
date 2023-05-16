@@ -1,6 +1,7 @@
+using System;
 using UnityEngine;
 
-public struct Triangle
+public readonly struct Triangle : IEquatable<Triangle>
 {
     public readonly int topIndex, leftIndex, bottomIndex, rightIndex;
     public readonly bool isTopTriangle;
@@ -39,25 +40,40 @@ public struct Triangle
 
     public (Vector2, Vector2, Vector2) GetVertices()
     {
-        Vector2 topLeft = new Vector2(leftIndex, topIndex);
-        Vector2 bottomRight = new Vector2(rightIndex, bottomIndex);
+        Vector2 topLeft = new(leftIndex, topIndex);
+        Vector2 bottomRight = new(rightIndex, bottomIndex);
         Vector2 otherPoint = isTopTriangle
-            ? new Vector2(rightIndex, topIndex)
-            : new Vector2(leftIndex, bottomIndex);
+            ? new(rightIndex, topIndex)
+            : new(leftIndex, bottomIndex);
         return (topLeft, bottomRight, otherPoint);
     }
 
-    public static bool operator ==(Triangle t1, Triangle t2)
+    public override int GetHashCode()
     {
-        return t1.topIndex == t2.topIndex
-            && t1.leftIndex == t2.leftIndex
-            && t1.bottomIndex == t2.bottomIndex
-            && t1.rightIndex == t2.rightIndex
-            && t1.isTopTriangle == t2.isTopTriangle;
+        return HashCode.Combine(topIndex, leftIndex, bottomIndex, rightIndex, isTopTriangle);
     }
-    
-    public static bool operator !=(Triangle t1, Triangle t2)
+
+    public override bool Equals(object obj)
     {
-        return !(t1 == t2);
+        return obj is Triangle triangle && Equals(triangle);
+    }
+
+    public bool Equals(Triangle other)
+    {
+        return topIndex == other.topIndex &&
+               leftIndex == other.leftIndex &&
+               bottomIndex == other.bottomIndex &&
+               rightIndex == other.rightIndex &&
+               isTopTriangle == other.isTopTriangle;
+    }
+
+    public static bool operator ==(Triangle left, Triangle right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Triangle left, Triangle right)
+    {
+        return !(left == right);
     }
 }

@@ -7,13 +7,13 @@ public static class Noise
 	public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, int seed, float scale, int octaves, float persistance, float lacunarity, float blend, float blendStrength, Vector2 offset)
 	{
 		float[,] array = new float[mapWidth, mapHeight];
-		ConsistentRandom consistentRandom = new ConsistentRandom(seed);
+		ConsistentRandom consistentRandom = new(seed);
         consistentRandom.Next(0, 10000);
 		Vector2[] array2 = new Vector2[octaves];
 		for (int i = 0; i < octaves; i++)
 		{
-			float x = (float)consistentRandom.Next(-100000, 100000) + offset.x;
-			float y = (float)consistentRandom.Next(-100000, 100000) + offset.y;
+			float x = consistentRandom.Next(-100000, 100000) + offset.x;
+			float y = consistentRandom.Next(-100000, 100000) + offset.y;
 			array2[i] = new Vector2(x, y);
 		}
 		if (scale <= 0f)
@@ -22,8 +22,8 @@ public static class Noise
 		}
 		float num = float.MinValue;
 		float num2 = float.MaxValue;
-		float num3 = (float)mapWidth / 2f;
-		float num4 = (float)mapHeight / 2f;
+		float num3 = mapWidth / 2f;
+		float num4 = mapHeight / 2f;
 		for (int j = 0; j < mapHeight; j++)
 		{
 			for (int k = 0; k < mapWidth; k++)
@@ -33,10 +33,10 @@ public static class Noise
 				float num7 = 0f;
 				for (int l = 0; l < octaves; l++)
 				{
-					float num8 = ((float)k - num3) / scale * num6 + array2[l].x;
-					float num9 = ((float)k - num3) / scale * (num6 * blend) + array2[l].x;
-					float num10 = ((float)j - num4) / scale * num6 + array2[l].y;
-					float num11 = ((float)j - num4) / scale * (num6 * blend) + array2[l].y;
+					float num8 = (k - num3) / scale * num6 + array2[l].x;
+					float num9 = (k - num3) / scale * (num6 * blend) + array2[l].x;
+					float num10 = (j - num4) / scale * num6 + array2[l].y;
+					float num11 = (j - num4) / scale * (num6 * blend) + array2[l].y;
 					float num12 = Mathf.PerlinNoise(num8 + num9 * blendStrength, num10 + num11 * blendStrength) * 2f - 1f;
 					num7 += num12 * num5;
 					num5 *= persistance;

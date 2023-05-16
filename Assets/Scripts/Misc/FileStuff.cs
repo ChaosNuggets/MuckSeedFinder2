@@ -8,10 +8,8 @@ public static class FileStuff
         string path = Environment.GetFolderPath(
             Environment.SpecialFolder.DesktopDirectory) + @"\MuckSeedFinder.log.txt"; // Get the path to the desktop
 
-        using (StreamWriter sw = File.AppendText(path))
-        {
-            sw.WriteLine(text);
-        }
+        using StreamWriter sw = File.AppendText(path);
+        sw.WriteLine(text);
     }
     public static void LogSeed(int[] seeds)
     {
@@ -23,12 +21,10 @@ public static class FileStuff
 
     private static void WriteData(string path, int[] seeds)
     {
-        using (StreamWriter sw = File.AppendText(path))
+        using StreamWriter sw = File.AppendText(path);
+        foreach (int seed in seeds)
         {
-            foreach (int seed in seeds)
-            {
-                sw.WriteLine(seed);
-            }
+            sw.WriteLine(seed);
         }
     }
 }
