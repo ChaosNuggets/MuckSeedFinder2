@@ -73,7 +73,7 @@ public class HeightMap
     }
 
     // This treats the heightmap as squares
-    public float IndexToHeightFast(float row, float column)
+    private float IndexToHeightFast(float row, float column)
     {
         var (topIndex, leftIndex, bottomIndex, rightIndex)
             = Triangle.GetSquare(row, column);
@@ -89,7 +89,7 @@ public class HeightMap
         return Mathf.Lerp(topHeight, bottomHeight, verticalT);
     }
 
-    public float IndexToHeight(float row, float column)
+    private float IndexToHeight(float row, float column)
     {
         Plane plane = GetPlane(row, column);
         plane.Raycast(new Ray(new Vector3(column, 0f, row), Vector3.up), out float distance);
@@ -113,6 +113,28 @@ public class HeightMap
             : new(triangle.leftIndex, bottomLeftHeight, triangle.bottomIndex);
 
         return new Plane(topLeft, bottomRight, otherPoint);
+    }
+
+    public float GetAngle(float x, float z)
+    {
+        // Get the heights
+        var (row, column) = CoordToIndex(x, z);
+        Triangle triangle = new(row, column);
+        var (topRightHeight, topLeftHeight, bottomLeftHeight, bottomRightHeight)
+            = GetSquareHeights(triangle.topIndex, triangle.leftIndex, triangle.bottomIndex, triangle.rightIndex);
+
+        // Calculate 3 points on the plane
+        Vector3 topLeft = IndexToCoord(new Vector3(triangle.leftIndex, topLeftHeight, triangle.topIndex));
+        Vector3 bottomRight = IndexToCoord(new Vector3(triangle.rightIndex, bottomRightHeight, triangle.bottomIndex));
+        Vector3 otherPoint = IndexToCoord(triangle.isTopTriangle
+            ? new Vector3(triangle.rightIndex, topRightHeight, triangle.topIndex)
+            : new Vector3(triangle.leftIndex, bottomLeftHeight, triangle.bottomIndex));
+
+        // Create the plane and calculate the angle
+        Plane plane = new(topLeft, bottomRight, otherPoint);
+        float angle = Mathf.Abs(Vector3.Angle(Vector3.up, plane.normal));
+        angle = angle > 90 ? 180 - angle : angle;
+        return angle;
     }
 
     private (float, float, float, float) GetSquareHeights(int topIndex, int leftIndex, int bottomIndex, int rightIndex)
@@ -142,7 +164,7 @@ public class HeightMap
         return didHit;
     }
 
-    public bool IndexRaycast(Ray ray, out Vector3 hitPoint)
+    private bool IndexRaycast(Ray ray, out Vector3 hitPoint)
     {
         // Row is z, column is x
         SuperiorRay2D ray2D = new(ray);
