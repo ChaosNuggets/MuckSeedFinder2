@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class HeightMap
@@ -91,17 +92,17 @@ public class HeightMap
 
     private float IndexToHeight(float row, float column)
     {
-        Plane plane = GetPlane(row, column);
+        Plane plane = GetIndexPlane(row, column);
         plane.Raycast(new Ray(new Vector3(column, 0f, row), Vector3.up), out float distance);
         return distance;
     }
 
-    private Plane GetPlane(float row, float column)
+    private Plane GetIndexPlane(float row, float column)
     {
-        return GetPlane(new Triangle(row, column));
+        return GetIndexPlane(new Triangle(row, column));
     }
 
-    private Plane GetPlane(Triangle triangle)
+    private Plane GetIndexPlane(Triangle triangle)
     {
         var (topRightHeight, topLeftHeight, bottomLeftHeight, bottomRightHeight)
             = GetSquareHeights(triangle.topIndex, triangle.leftIndex, triangle.bottomIndex, triangle.rightIndex);
@@ -117,6 +118,25 @@ public class HeightMap
 
     public float GetAngle(float x, float z)
     {
+        Plane plane = GetCoordPlane(x, z);
+        float angle = Mathf.Abs(Vector3.Angle(Vector3.up, plane.normal));
+        angle = angle > 90 ? 180 - angle : angle;
+        return angle;
+    }
+
+    public Vector3 SphereCastDown(float x, float z, float radius)
+    {
+        Plane plane = GetCoordPlane(x, z);
+        plane.Raycast(new Ray(new Vector3(x, 0f, z), Vector3.up), out float y);
+        float offset = Mathf.Abs(plane.normal.magnitude / plane.normal.y) * radius; // Derived using cos cross product formula and trig
+
+        Vector3 sphereCenter = new(x, y + offset, z);
+        Vector3 vectorToHitPoint = plane.normal.y > 0 ? plane.normal.normalized * radius * -1 : plane.normal.normalized * radius;
+        return sphereCenter + vectorToHitPoint;
+    }
+
+    private Plane GetCoordPlane(float x, float z)
+    {
         // Get the heights
         var (row, column) = CoordToIndex(x, z);
         Triangle triangle = new(row, column);
@@ -131,10 +151,7 @@ public class HeightMap
             : new Vector3(triangle.leftIndex, bottomLeftHeight, triangle.bottomIndex));
 
         // Create the plane and calculate the angle
-        Plane plane = new(topLeft, bottomRight, otherPoint);
-        float angle = Mathf.Abs(Vector3.Angle(Vector3.up, plane.normal));
-        angle = angle > 90 ? 180 - angle : angle;
-        return angle;
+        return new Plane(topLeft, bottomRight, otherPoint);
     }
 
     private (float, float, float, float) GetSquareHeights(int topIndex, int leftIndex, int bottomIndex, int rightIndex)
@@ -175,7 +192,7 @@ public class HeightMap
         while (IsInBounds(currentTriangle))
         {
             // Get the current plane and see if it intersects
-            Plane currentPlane = GetPlane(currentTriangle);
+            Plane currentPlane = GetIndexPlane(currentTriangle);
             bool didHit = currentPlane.Raycast(ray, out float distance);
             hitPoint = ray.GetPoint(distance);
 

@@ -28,6 +28,12 @@ public class MainClass : MonoBehaviour
         //Debug.Log(Spawn.FindSurvivalSpawnPosition(-2147483017, new HeightMap(-2147483017)).ToString("F5")); // Should print (-110.04690, 15.82334, -652.53750)
 
         // Chiefs chest
-        ChiefsChest.FindChiefsChests(SEED, heightMap);
+        //ChiefsChest.FindChiefsChests(SEED, heightMap);
+
+        // SphereCastDowns
+        Debug.Log(heightMap.SphereCastDown(343.5f, -60.2f, 1f)); // Should print 1.3927
+        Debug.Log(heightMap.SphereCastDown(-478.1f, -1102.4f, 2f)); // Should print 0.0000
+        Debug.Log(heightMap.SphereCastDown(-427.6f, -981.8f, 3f)); // Should print 3.6089
+        Debug.Log(heightMap.SphereCastDown(-17.3f, 5.5f, 4f)); // Should print 27.8761
     }
 }
