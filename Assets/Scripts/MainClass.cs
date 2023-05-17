@@ -5,7 +5,8 @@ public class MainClass : MonoBehaviour
     // Tests
     private void Awake()
     {
-        const int SEED = 1691052140;
+        //const int SEED = 1691052140;
+        const int SEED = 68645856;
         HeightMap heightMap = new(SEED);
 
         //// Coord to heights

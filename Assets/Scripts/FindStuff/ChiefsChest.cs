@@ -6,8 +6,8 @@ public static class ChiefsChest
     public static List<Vector3> FindChiefsChests(int seed, HeightMap heightMap)
     {
         const int RESOURCE_GEN_OFFSET = 3;
-        const int MAX_VILLAGES = 50;
-        const int MIN_VILLAGES = 3;
+        const int MAX_VILLAGES = 3;
+        const int MIN_VILLAGES = 1;
         const float WORLD_EDGE_BUFFER = 0.6f;
         const int GRASS_HEIGHT = 17;
 
@@ -28,7 +28,6 @@ public static class ChiefsChest
             float x = (float)(randomGen.NextDouble() * 2 - 1) * HeightMap.MAP_CHUNK_SIZE / 2f * WORLD_SCALE;
             float z = (float)(randomGen.NextDouble() * 2 - 1) * HeightMap.MAP_CHUNK_SIZE / 2f * WORLD_SCALE;
             Vector3 villageCenter = new(x, heightMap.CoordToHeight(x, z), z);
-            //Debug.Log($"villageCenter: {villageCenter}, angle: {heightMap.GetAngle(x, z)}");
             if (villageCenter.y < GRASS_HEIGHT || heightMap.GetAngle(x, z) > 15f)
             {
                 continue;
@@ -36,9 +35,9 @@ public static class ChiefsChest
 
             // If the village should be placed
             totalVillages++;
+            randomGen.NextDouble();
             CalculateChiefsChestPos(villageCenter);
         }
-        Debug.Log($"Loop ran {i} times");
 
         return chiefsChests;
     }
