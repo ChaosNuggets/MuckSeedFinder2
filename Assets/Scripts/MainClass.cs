@@ -27,7 +27,7 @@ public class MainClass : MonoBehaviour
         //Debug.Log(Spawn.FindSurvivalSpawnPosition(SEED, heightMap).ToString("F5")); // Should print (-17.30739, 28.87648, 5.51006)
         //Debug.Log(Spawn.FindSurvivalSpawnPosition(-2147483017, new HeightMap(-2147483017)).ToString("F5")); // Should print (-110.04690, 15.82334, -652.53750)
 
-        // Chiefs chest
-        ChiefsChest.FindChiefsChests(SEED, heightMap);
+        // Chiefs chests
+        ChiefsChests.FindChiefsChests(SEED, heightMap);
     }
 }

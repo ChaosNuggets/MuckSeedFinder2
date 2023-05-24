@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class HeightMap
@@ -123,6 +122,7 @@ public class HeightMap
         angle = angle > 90 ? 180 - angle : angle;
         return angle;
     }
+
     private Plane GetCoordPlane(float x, float z)
     {
         // Get the heights
