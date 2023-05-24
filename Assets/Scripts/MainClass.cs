@@ -1,3 +1,4 @@
+using System.Reflection;
 using UnityEngine;
 
 public class MainClass : MonoBehaviour
@@ -6,7 +7,8 @@ public class MainClass : MonoBehaviour
     private void Awake()
     {
         //const int SEED = 1691052140;
-        const int SEED = 68645856;
+        //const int SEED = 68645856;
+        const int SEED = -296416513;
         HeightMap heightMap = new(SEED);
 
         //// Coord to heights

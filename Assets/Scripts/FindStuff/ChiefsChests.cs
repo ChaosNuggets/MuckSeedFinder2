@@ -34,7 +34,8 @@ public static class ChiefsChests
 
             // If the village should be placed
             numVillages++;
-            
+
+            Debug.Log("Village");
             if (GenerateStructures(rand, villageCenter, heightMap, out Vector3 chiefsChest))
             {
                 chiefsChests.Add(chiefsChest);
@@ -98,10 +99,13 @@ public static class ChiefsChests
 
     private static void SpawnObjectsSimple(int amount, ConsistentRandom rand)
     {
-        // From GenerateCamp.RandomSpherePos
-        rand.Next();
-        rand.Next();
-        rand.Next();
+        for (int i = 0; i < amount; i++)
+        {
+            // From GenerateCamp.RandomSpherePos
+            rand.Next();
+            rand.Next();
+            rand.Next();
+        }
     }
 
     //private List<GameObject> SpawnObjects(StructureSpawner houses, int amount, ConsistentRandom rand)
@@ -143,22 +147,15 @@ public static class ChiefsChests
 
     private static bool FindPos(ConsistentRandom rand, Vector3 villageCenter, HeightMap heightMap, out Vector3 hitPoint)
     {
+        const int WATER_HEIGHT = 14;
         const int CAMP_RADIUS = 80;
-        Vector3 a = villageCenter + Vector3.up * 200f;
-        Vector3 b = RandomSpherePos(rand) * CAMP_RADIUS;
 
-        if (Physics.SphereCast(a + b, 1f, Vector3.down, out result, 400f, this.whatIsGround))
-        {
-            if (result.collider.CompareTag("Camp"))
-            {
-                result = default(RaycastHit);
-            }
-            if (WorldUtility.WorldHeightToBiome(result.point.y) == TextureData.TerrainType.Water)
-            {
-                result = default(RaycastHit);
-            }
-        }
-        return result;
+        Vector3 spherePos = RandomSpherePos(rand) * CAMP_RADIUS;
+        Vector3 pos = villageCenter + spherePos;
+
+        hitPoint = heightMap.SphereCastDown(pos.x, pos.z, 1f);
+        Debug.Log($"hitPoint: {hitPoint}");
+        return hitPoint.y >= WATER_HEIGHT;
     }
     private static Vector3 RandomSpherePos(ConsistentRandom rand)
     {
