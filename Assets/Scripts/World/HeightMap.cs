@@ -123,6 +123,17 @@ public class HeightMap
         return angle;
     }
 
+    public Vector3 SphereCastDown(float x, float z, float radius)
+    {
+        Plane plane = GetCoordPlane(x, z);
+        plane.Raycast(new Ray(new Vector3(x, 0f, z), Vector3.up), out float y);
+        float offset = Mathf.Abs(plane.normal.magnitude / plane.normal.y) * radius; // Derived using cos cross product formula and trig
+
+        Vector3 sphereCenter = new(x, y + offset, z);
+        Vector3 vectorToHitPoint = plane.normal.y > 0 ? plane.normal.normalized * radius * -1 : plane.normal.normalized * radius;
+        return sphereCenter + vectorToHitPoint;
+    }
+
     private Plane GetCoordPlane(float x, float z)
     {
         // Get the heights
@@ -174,7 +185,7 @@ public class HeightMap
         // Row is z, column is x
         SuperiorRay2D ray2D = new(ray);
         PreviousMove previousMove = PreviousMove.None;
-    
+
         // Start at ray origin
         Triangle currentTriangle = new(ray.origin.z, ray.origin.x);
         while (IsInBounds(currentTriangle))
