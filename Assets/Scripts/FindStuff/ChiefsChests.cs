@@ -53,21 +53,21 @@ public static class ChiefsChests
 
         // From GenerateCamp.GenerateStructures
         // Calculate the total number of structures to spawn
-        int numChiefsChests = 1;
-        int numHuts = rand.Next(2, 4);
-        int numHouses = rand.Next(2, 3);
+        const int NUM_CHIEFS_CHESTS = 1;
+        int numWalllessWeirdThings = rand.Next(2, 4);
+        int numHouseSpawners = rand.Next(2, 3);
         int numFireplaces = rand.Next(2, 4);
         int numBarrels = rand.Next(2, 7);
         int numLogs = rand.Next(2, 8);
         int numLogPiles = rand.Next(2, 5);
         int numRockPiles = rand.Next(2, 5);
 
-        bool doesChiefsChestExist = SpawnObjects(numChiefsChests, rand, villageCenter, heightMap, out chiefsChest) >= numChiefsChests;
+        bool doesChiefsChestExist = SpawnObjects(NUM_CHIEFS_CHESTS, rand, villageCenter, heightMap, out chiefsChest) >= NUM_CHIEFS_CHESTS;
 
-        int numHutsSpawned = SpawnObjects(numHuts, rand, villageCenter, heightMap, out _);
+        int numHutsSpawned = SpawnObjects(numWalllessWeirdThings, rand, villageCenter, heightMap, out _);
         for (int i = 0; i < numHutsSpawned; i++)
         {
-            SetChests(rand);
+            SetWalllessWeirdThingChests(rand);
         }
 
         SpawnObjectsSimple(numFireplaces, rand);
@@ -76,7 +76,7 @@ public static class ChiefsChests
         SpawnObjectsSimple(numLogPiles, rand);
         SpawnObjectsSimple(numRockPiles, rand);
 
-        //SpawnObjects(this.houseSpawner, numHouses, rand);
+        //SpawnObjects(this.houseSpawner, numHouseSpawners, rand);
 
         return doesChiefsChestExist;
     }
@@ -165,5 +165,56 @@ public static class ChiefsChests
         return new Vector3(x, y, z).normalized;
     }
 
-    private static void SetChests(ConsistentRandom rand) { }
+    private static void SetWalllessWeirdThingChests(ConsistentRandom rand)
+    {
+        const int POSITIONS_LENGTH = 2;
+
+        int numChests = rand.Next(0, POSITIONS_LENGTH) + 1;
+        for (int k = 0; k < numChests; k++)
+        {
+            rand.Next();
+            rand.Next();
+            rand.Next(); // From SpawnChestsInLocations.FindLootTable
+            int numLootItems = GetWalllessWeirdThingLoot(rand);
+            InitChest(numLootItems, rand);
+        }
+    }
+
+    private static int GetWalllessWeirdThingLoot(ConsistentRandom rand)
+    {
+        float[] dropChances =
+        {
+            0.3f,
+            0.3f,
+            0.4f,
+            0.4f,
+            0.3f,
+            0.1f,
+            0.3f,
+            0.15f,
+            0.25f,
+            0.2f,
+            0.15f,
+            0.25f
+        };
+
+        int numLootItems = 0;
+        foreach (float dropChance in dropChances)
+        {
+            if (rand.NextDouble() < dropChance)
+            {
+                numLootItems++;
+            }
+        }
+
+        return numLootItems;
+    }
+
+    private static void InitChest(int numLootItems, ConsistentRandom rand)
+    {
+        for (int i = 0; i < numLootItems; i++)
+        {
+            rand.Next();
+        }
+    }
 }
