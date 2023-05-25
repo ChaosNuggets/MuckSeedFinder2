@@ -234,8 +234,6 @@ public class HeightMap
                 return new Triangle(
                     currentTriangle.topIndex - 1,
                     currentTriangle.leftIndex,
-                    currentTriangle.bottomIndex - 1,
-                    currentTriangle.rightIndex,
                     false
                 );
             }
@@ -246,8 +244,6 @@ public class HeightMap
                 return new Triangle(
                     currentTriangle.topIndex,
                     currentTriangle.leftIndex - 1,
-                    currentTriangle.bottomIndex,
-                    currentTriangle.rightIndex - 1,
                     true
                 );
             }
@@ -263,8 +259,6 @@ public class HeightMap
                 return new Triangle(
                     currentTriangle.topIndex,
                     currentTriangle.leftIndex + 1,
-                    currentTriangle.bottomIndex,
-                    currentTriangle.rightIndex + 1,
                     false
                 );
             }
@@ -275,8 +269,6 @@ public class HeightMap
                 return new Triangle(
                     currentTriangle.topIndex + 1,
                     currentTriangle.leftIndex,
-                    currentTriangle.bottomIndex + 1,
-                    currentTriangle.rightIndex,
                     true
                 );
             }
@@ -287,8 +279,6 @@ public class HeightMap
         return new Triangle(
             currentTriangle.topIndex,
             currentTriangle.leftIndex,
-            currentTriangle.bottomIndex,
-            currentTriangle.rightIndex,
             !currentTriangle.isTopTriangle
         );
     }

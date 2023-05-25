@@ -3,24 +3,37 @@ using UnityEngine;
 
 public readonly struct Triangle : IEquatable<Triangle>
 {
-    public readonly int topIndex, leftIndex, bottomIndex, rightIndex;
+    public readonly int topIndex, leftIndex;
+    public int bottomIndex
+    { 
+        get
+        {
+            return topIndex + 1;
+        }
+    }
+    public int rightIndex
+    {
+        get
+        {
+            return leftIndex + 1;
+        }
+    }
+
     public readonly bool isTopTriangle;
 
     // Mesh of land is boxes with a diagonal line going down and right separating each box into 2 triangles
     public Triangle(float row, float column)
     {
-        (topIndex, leftIndex, bottomIndex, rightIndex)
+        (topIndex, leftIndex, _, _)
             = GetSquare(row, column);
         isTopTriangle = row - topIndex < column - leftIndex; // Basically if y is less than x (remember y goes down), it's the top triangle, and vice versa
     }
 
     // ya like boilerplate code?
-    public Triangle(int topIndex, int leftIndex, int bottomIndex, int rightIndex, bool isTopTriangle)
+    public Triangle(int topIndex, int leftIndex, bool isTopTriangle)
     {
         this.topIndex = topIndex;
         this.leftIndex = leftIndex;
-        this.bottomIndex = bottomIndex;
-        this.rightIndex = rightIndex;
         this.isTopTriangle = isTopTriangle;
     }
 
