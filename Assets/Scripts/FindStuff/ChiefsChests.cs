@@ -51,6 +51,22 @@ public static class ChiefsChests
         rand.Next(); // From CampSpawner.FindObjectToSpawn
         rand.Next(); // From GenerateCamp.GenerateZone
 
+        float[] walllessWeirdThingDropChances =
+        {
+            0.3f,
+            0.3f,
+            0.4f,
+            0.4f,
+            0.3f,
+            0.1f,
+            0.3f,
+            0.15f,
+            0.25f,
+            0.2f,
+            0.15f,
+            0.25f
+        };
+
         // From GenerateCamp.GenerateStructures
         // Calculate the total number of structures to spawn
         const int NUM_CHIEFS_CHESTS = 1;
@@ -67,7 +83,7 @@ public static class ChiefsChests
         int numHutsSpawned = SpawnObjects(numWalllessWeirdThings, rand, villageCenter, heightMap, out _);
         for (int i = 0; i < numHutsSpawned; i++)
         {
-            SetWalllessWeirdThingChests(rand);
+            SetRegularChests(rand, walllessWeirdThingDropChances);
         }
 
         SpawnObjectsSimple(numFireplaces, rand);
@@ -110,6 +126,15 @@ public static class ChiefsChests
 
     private static void SpawnHouseSpawners(int amount, ConsistentRandom rand, Vector3 villageCenter, HeightMap heightMap)
     {
+        float[][] dropChances =
+        {
+            new[] { 0.7f, 0.3f, 0.2f, 0.05f, 0.3f, 0.05f, 0.5f, 0.5f, 0.5f, 0.2f, 0.2f, 0.2f },
+            new[] { 0.3f, 0.5f, 0.3f, 0.3f, 0.4f, 0.2f, 0.2f, 0.1f, 0.05f, 0.5f, 0.05f },
+            new[] { 0.5f, 0.2f, 0.1f, 0.1f, 0.2f, 0.4f, 0.3f, 0.1f, 0.3f, 0.2f, 0.2f, 0.05f, 0.005f, 0.5f, 0.1f },
+            new[] { 0.3f, 0.5f, 0.5f, 0.1f, 0.01f, 0.3f, 0.1f, 0.01f, 0.5f, 0.1f, 0.3f, 0.3f },
+            new[] { 0.5f, 0.5f, 0.1f, 0.01f, 0.5f, 0.5f, 0.3f, 0.1f, 0.2f, 0.5f, 0.1f, 0.05f, 0.1f, 0.1f, 0.1f, 0.1f, 0.01f, 0.05f }
+        };
+
         for (int i = 0; i < amount; i++)
         {
             int houseIdx = FindObjectToSpawn(rand);
@@ -118,13 +143,12 @@ public static class ChiefsChests
             {
                 if (houseIdx < 5)
                 {
-                    // SpawnChests
-                    componentInChildren.SetChests(rand);
+                    SetRegularChests(rand, dropChances[houseIdx]);
                 }
                 else
                 {
                     // SpawnPowerups
-                    componentInChildren2.SetChests(rand);
+                    SetPowerupChests(rand);
                 }
             }
         }
@@ -142,7 +166,7 @@ public static class ChiefsChests
             0.08f, // 4
             0.04f  // 5 - the only one with spawnPowerups
         };
-        
+
         float randNum = (float)rand.NextDouble();
         float cumulativeWeight = 0f;
 
@@ -179,39 +203,24 @@ public static class ChiefsChests
         return new Vector3(x, y, z).normalized;
     }
 
-    private static void SetWalllessWeirdThingChests(ConsistentRandom rand)
+    private static void SetRegularChests(ConsistentRandom rand, float[] dropChances)
     {
         const int POSITIONS_LENGTH = 2;
 
         int numChests = rand.Next(0, POSITIONS_LENGTH) + 1;
-        for (int k = 0; k < numChests; k++)
+        for (int i = 0; i < numChests; i++)
         {
             rand.Next();
             rand.Next();
             rand.Next(); // From SpawnChestsInLocations.FindLootTable
-            int numLootItems = GetWalllessWeirdThingLoot(rand);
+
+            int numLootItems = GetLoot(rand, dropChances);
             InitChest(numLootItems, rand);
         }
     }
 
-    private static int GetWalllessWeirdThingLoot(ConsistentRandom rand)
+    private static int GetLoot(ConsistentRandom rand, float[] dropChances)
     {
-        float[] dropChances =
-        {
-            0.3f,
-            0.3f,
-            0.4f,
-            0.4f,
-            0.3f,
-            0.1f,
-            0.3f,
-            0.15f,
-            0.25f,
-            0.2f,
-            0.15f,
-            0.25f
-        };
-
         int numLootItems = 0;
         foreach (float dropChance in dropChances)
         {
@@ -229,6 +238,18 @@ public static class ChiefsChests
         for (int i = 0; i < numLootItems; i++)
         {
             rand.Next();
+        }
+    }
+
+    private static void SetPowerupChests(ConsistentRandom rand)
+    {
+        const int POSITIONS_LENGTH = 5;
+
+        int numChests = rand.Next(0, POSITIONS_LENGTH) + 1;
+        for (int i = 0; i < numChests; i++)
+        {
+            rand.Next();
+            rand.Next(); // From SpawnPowerupsInLocations.FindObjectToSpawn
         }
     }
 }
