@@ -12,17 +12,14 @@ public static class ChiefsChests
         const int GRASS_HEIGHT = 17;
         const float WORLD_SCALE = HeightMap.WORLD_SCALE * WORLD_EDGE_BUFFER;
 
+        int numIterations = 0;
         int numVillages = 0;
         ConsistentRandom rand = new(seed + RESOURCE_GEN_OFFSET);
         List<Vector3> chiefsChests = new();
 
-        for (int i = 0; i < MAX_VILLAGES * 10; i++)
+        while (numVillages < MAX_VILLAGES)
         {
-            if (numVillages >= MAX_VILLAGES || (i >= MAX_VILLAGES * 2 && numVillages >= MIN_VILLAGES))
-            {
-                break;
-            }
-            
+            numIterations++;
             // Calculate the center of the village
             float x = (float)(rand.NextDouble() * 2 - 1) * HeightMap.MAP_CHUNK_SIZE / 2f * WORLD_SCALE;
             float z = (float)(rand.NextDouble() * 2 - 1) * HeightMap.MAP_CHUNK_SIZE / 2f * WORLD_SCALE;
@@ -35,10 +32,15 @@ public static class ChiefsChests
             // If the village should be placed
             numVillages++;
 
-            Debug.Log("Village");
-            if (GenerateStructures(rand, villageCenter, heightMap, out Vector3 chiefsChest))
+            bool shouldBreak = numVillages >= MAX_VILLAGES || (numIterations > MAX_VILLAGES * 2 && numVillages >= MIN_VILLAGES) || numIterations > MAX_VILLAGES * 10;
+            if (GenerateStructures(rand, villageCenter, heightMap, shouldBreak, out Vector3 chiefsChest))
             {
                 chiefsChests.Add(chiefsChest);
+            }
+
+            if (shouldBreak)
+            {
+                break;
             }
         }
 
@@ -46,7 +48,7 @@ public static class ChiefsChests
     }
 
     // Returns whether or not there's a chiefs chest in that village
-    private static bool GenerateStructures(ConsistentRandom rand, Vector3 villageCenter, HeightMap heightMap, out Vector3 chiefsChest)
+    private static bool GenerateStructures(ConsistentRandom rand, Vector3 villageCenter, HeightMap heightMap, bool shouldSkipLaterCalcs, out Vector3 chiefsChest)
     {
         rand.Next(); // From CampSpawner.FindObjectToSpawn
         rand.Next(); // From GenerateCamp.GenerateZone
@@ -79,6 +81,11 @@ public static class ChiefsChests
         int numRockPiles = rand.Next(2, 5);
 
         bool doesChiefsChestExist = SpawnObjects(NUM_CHIEFS_CHESTS, rand, villageCenter, heightMap, out chiefsChest) >= NUM_CHIEFS_CHESTS;
+
+        if (shouldSkipLaterCalcs)
+        {
+            return doesChiefsChestExist;
+        }
 
         int numHutsSpawned = SpawnObjects(numWalllessWeirdThings, rand, villageCenter, heightMap, out _);
         for (int i = 0; i < numHutsSpawned; i++)
@@ -147,7 +154,6 @@ public static class ChiefsChests
                 }
                 else
                 {
-                    // SpawnPowerups
                     SetPowerupChests(rand);
                 }
             }
@@ -191,7 +197,6 @@ public static class ChiefsChests
         Vector3 pos = villageCenter + spherePos;
 
         hitPoint = heightMap.SphereCastDown(pos.x, pos.z, 1f);
-        Debug.Log($"hitPoint: {hitPoint}");
         return hitPoint.y >= WATER_HEIGHT;
     }
 

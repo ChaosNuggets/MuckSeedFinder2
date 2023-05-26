@@ -1,4 +1,4 @@
-using System.Reflection;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MainClass : MonoBehaviour
@@ -30,6 +30,10 @@ public class MainClass : MonoBehaviour
         //Debug.Log(Spawn.FindSurvivalSpawnPosition(-2147483017, new HeightMap(-2147483017)).ToString("F5")); // Should print (-110.04690, 15.82334, -652.53750)
 
         // Chiefs chests
-        ChiefsChests.FindChiefsChests(SEED, heightMap);
+        List<Vector3> chiefsChests = ChiefsChests.FindChiefsChests(SEED, heightMap);
+        foreach (var chiefsChest in chiefsChests)
+        {
+            Debug.Log(chiefsChest);
+        }
     }
 }
