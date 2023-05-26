@@ -3,8 +3,7 @@ using UnityEngine;
 
 public class MainClass : MonoBehaviour
 {
-    // Tests
-    private void Awake()
+    private static void RunTests()
     {
         //const int SEED = 1691052140;
         //const int SEED = 68645856;
@@ -41,6 +40,31 @@ public class MainClass : MonoBehaviour
         foreach (var guardian in guardians)
         {
             Debug.Log(guardian);
+        }
+    }
+
+    private void Awake()
+    {
+        const int NUM_SEEDS_TO_TEST = 10;
+        const float MAX_DISTANCE_TO_LOG = 9999;
+        SeedCalculator seedCalculator = new(int.MinValue);
+        int[] godSeeds = seedCalculator.CalculateNextGodSeeds(NUM_SEEDS_TO_TEST);
+
+        for (int i = 0; i < godSeeds.Length; i++)
+        {
+            int seed = godSeeds[i];
+            HeightMap heightMap = new(seed);
+
+            Vector3 spawn = Spawn.FindSurvivalSpawn(seed, heightMap);
+            List<Vector3> chiefsChests = ChiefsChests.FindChiefsChests(seed, heightMap);
+            List<Vector3> guardians = Guardians.FindGuardians(seed, heightMap);
+            Vector3 boat = Boat.FindBoat(seed, heightMap);
+
+            float distance = CalculateDistance.CalculateShortestDistance(spawn, chiefsChests, guardians, boat);
+            if (distance < MAX_DISTANCE_TO_LOG)
+            {
+                FileStuff.LogSeed(seed, distance);
+            }
         }
     }
 }
