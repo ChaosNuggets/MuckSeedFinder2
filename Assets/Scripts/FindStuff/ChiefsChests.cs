@@ -76,7 +76,7 @@ public static class ChiefsChests
         SpawnObjectsSimple(numLogPiles, rand);
         SpawnObjectsSimple(numRockPiles, rand);
 
-        //SpawnObjects(this.houseSpawner, numHouseSpawners, rand);
+        SpawnHouseSpawners(numHouseSpawners, rand, villageCenter, heightMap);
 
         return doesChiefsChestExist;
     }
@@ -108,42 +108,55 @@ public static class ChiefsChests
         }
     }
 
-    //private List<GameObject> SpawnObjects(StructureSpawner houses, int amount, ConsistentRandom rand)
-    //{
-    //    List<GameObject> list = new List<GameObject>();
-    //    houses.CalculateWeight();
-    //    for (int i = 0; i < amount; i++)
-    //    {
-    //        GameObject original = houses.FindObjectToSpawn(houses.structurePrefabs, houses.totalWeight, rand);
-    //        RaycastHit raycastHit = this.FindPos(rand);
-    //        if (!(raycastHit.collider == null))
-    //        {
-    //            GameObject gameObject = Object.Instantiate<GameObject>(original, raycastHit.point, Quaternion.LookRotation(raycastHit.normal));
-    //            int nextId = ResourceManager.Instance.GetNextId();
-    //            gameObject.GetComponent<Hitable>().SetId(nextId);
-    //            ResourceManager.Instance.AddObject(nextId, gameObject);
-    //            SpawnChestsInLocations componentInChildren = gameObject.GetComponentInChildren<SpawnChestsInLocations>();
-    //            if (componentInChildren)
-    //            {
-    //                componentInChildren.SetChests(rand);
-    //            }
-    //            SpawnPowerupsInLocations componentInChildren2 = gameObject.GetComponentInChildren<SpawnPowerupsInLocations>();
-    //            if (componentInChildren2)
-    //            {
-    //                componentInChildren2.SetChests(rand);
-    //            }
-    //            Hitable component = gameObject.GetComponent<Hitable>();
-    //            if (component)
-    //            {
-    //                int nextId2 = ResourceManager.Instance.GetNextId();
-    //                component.SetId(nextId2);
-    //                ResourceManager.Instance.AddObject(nextId2, gameObject);
-    //            }
-    //            list.Add(gameObject);
-    //        }
-    //    }
-    //    return list;
-    //}
+    private static void SpawnHouseSpawners(int amount, ConsistentRandom rand, Vector3 villageCenter, HeightMap heightMap)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            int houseIdx = FindObjectToSpawn(rand);
+
+            if (FindPos(rand, villageCenter, heightMap, out Vector3 hitPoint))
+            {
+                if (houseIdx < 5)
+                {
+                    // SpawnChests
+                    componentInChildren.SetChests(rand);
+                }
+                else
+                {
+                    // SpawnPowerups
+                    componentInChildren2.SetChests(rand);
+                }
+            }
+        }
+    }
+
+    private static int FindObjectToSpawn(ConsistentRandom rand)
+    {
+        const float TOTAL_WEIGHT = 1.15f;
+        float[] weights =
+        {
+            0.5f,  // 0
+            0.25f, // 1
+            0.15f, // 2
+            0.13f, // 3
+            0.08f, // 4
+            0.04f  // 5 - the only one with spawnPowerups
+        };
+        
+        float randNum = (float)rand.NextDouble();
+        float cumulativeWeight = 0f;
+
+        for (int i = 0; i < weights.Length; i++)
+        {
+            cumulativeWeight += weights[i];
+            if (randNum < cumulativeWeight / TOTAL_WEIGHT)
+            {
+                return i;
+            }
+        }
+
+        return 0;
+    }
 
     private static bool FindPos(ConsistentRandom rand, Vector3 villageCenter, HeightMap heightMap, out Vector3 hitPoint)
     {
@@ -157,6 +170,7 @@ public static class ChiefsChests
         Debug.Log($"hitPoint: {hitPoint}");
         return hitPoint.y >= WATER_HEIGHT;
     }
+
     private static Vector3 RandomSpherePos(ConsistentRandom rand)
     {
         float x = (float)rand.NextDouble() * 2 - 1;
