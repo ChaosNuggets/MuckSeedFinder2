@@ -2,7 +2,7 @@ using UnityEngine;
 
 public static class Boat
 {
-    public static Vector3 CalculateBoatPosition(int seed, HeightMap heightMap)
+    public static Vector3 FindBoat(int seed, HeightMap heightMap)
     {
         const float WATER_HEIGHT = 9.2874360f; 
         ConsistentRandom randomGen = new(seed);

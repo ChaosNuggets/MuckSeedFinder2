@@ -20,10 +20,12 @@ public static class ChiefsChests
         while (numVillages < MAX_VILLAGES)
         {
             numIterations++;
+
             // Calculate the center of the village
             float x = (float)(rand.NextDouble() * 2 - 1) * HeightMap.MAP_CHUNK_SIZE / 2f * WORLD_SCALE;
             float z = (float)(rand.NextDouble() * 2 - 1) * HeightMap.MAP_CHUNK_SIZE / 2f * WORLD_SCALE;
             Vector3 villageCenter = new(x, heightMap.CoordToHeight(x, z), z);
+
             if (villageCenter.y < GRASS_HEIGHT || heightMap.GetAngle(x, z) > 15f)
             {
                 continue;

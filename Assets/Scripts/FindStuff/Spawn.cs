@@ -2,7 +2,7 @@ using UnityEngine;
 
 public static class Spawn
 {
-    public static Vector3 FindSurvivalSpawnPosition(int seed, HeightMap heightMap)
+    public static Vector3 FindSurvivalSpawn(int seed, HeightMap heightMap)
     {
         const float MAP_RADIUS = 1100f;
         const int SAND_LAYER_START = 14;

@@ -18,7 +18,7 @@ public class MainClass : MonoBehaviour
         //Debug.Log(heightMap.CoordToHeight(-17.3f, 5.5f)); // Should print 27.8761
 
         //// Raycasts
-        //Debug.Log(Boat.CalculateBoatPosition(SEED, heightMap).ToString("F5")); // Should print (-428.84430, 10.28744, -940.10740)
+        //Debug.Log(Boat.FindBoat(SEED, heightMap).ToString("F5")); // Should print (-428.84430, 10.28744, -940.10740)
         //Debug.Log(heightMap.CoordRaycast(new Vector3(-500, 500, 1235), Vector3.zero, out Vector3 hitPoint));
         //Debug.Log(hitPoint);
         //Debug.Log(heightMap.CoordRaycast(new Vector3(0, 500, 0), new Vector3(23, 500, 0), out Vector3 hitPoint2));
@@ -26,14 +26,21 @@ public class MainClass : MonoBehaviour
         //Debug.Log(heightMap.CoordRaycast(new Vector3(5000, 2, 24322), new Vector3(0, 0, 0), out _));
 
         //// Spawn position
-        //Debug.Log(Spawn.FindSurvivalSpawnPosition(SEED, heightMap).ToString("F5")); // Should print (-17.30739, 28.87648, 5.51006)
-        //Debug.Log(Spawn.FindSurvivalSpawnPosition(-2147483017, new HeightMap(-2147483017)).ToString("F5")); // Should print (-110.04690, 15.82334, -652.53750)
+        //Debug.Log(Spawn.FindSurvivalSpawn(SEED, heightMap).ToString("F5")); // Should print (-17.30739, 28.87648, 5.51006)
+        //Debug.Log(Spawn.FindSurvivalSpawn(-2147483017, new HeightMap(-2147483017)).ToString("F5")); // Should print (-110.04690, 15.82334, -652.53750)
 
-        // Chiefs chests
-        List<Vector3> chiefsChests = ChiefsChests.FindChiefsChests(SEED, heightMap);
-        foreach (var chiefsChest in chiefsChests)
+        //// Chiefs chests
+        //List<Vector3> chiefsChests = ChiefsChests.FindChiefsChests(SEED, heightMap);
+        //foreach (var chiefsChest in chiefsChests)
+        //{
+        //    Debug.Log(chiefsChest);
+        //}
+
+        // Guardian locations
+        List<Vector3> guardians = Guardians.FindGuardians(SEED, heightMap);
+        foreach (var guardian in guardians)
         {
-            Debug.Log(chiefsChest);
+            Debug.Log(guardian);
         }
     }
 }
