@@ -3,18 +3,19 @@ using UnityEngine;
 
 public class MainClass : MonoBehaviour
 {
-    private static void RunTests()
+    private static void RunIndividualTests()
     {
         //const int SEED = 1691052140;
         //const int SEED = 68645856;
-        const int SEED = -296416513;
+        //const int SEED = -296416513;
+        const int SEED = -2147483348;
         HeightMap heightMap = new(SEED);
 
-        //// Coord to heights
-        //Debug.Log(heightMap.CoordToHeight(343.5f, -60.2f)); // Should print 1.3927
-        //Debug.Log(heightMap.CoordToHeight(-478.1f, -1102.4f)); // Should print 0.0000
-        //Debug.Log(heightMap.CoordToHeight(-427.6f, -981.8f)); // Should print 3.6089
-        //Debug.Log(heightMap.CoordToHeight(-17.3f, 5.5f)); // Should print 27.8761
+        // Coord to heights
+        Debug.Log(heightMap.CoordToHeight(343.5f, -60.2f)); // Should print 1.3927
+        Debug.Log(heightMap.CoordToHeight(-478.1f, -1102.4f)); // Should print 0.0000
+        Debug.Log(heightMap.CoordToHeight(-427.6f, -981.8f)); // Should print 3.6089
+        Debug.Log(heightMap.CoordToHeight(-17.3f, 5.5f)); // Should print 27.8761
 
         //// Raycasts
         //Debug.Log(Boat.FindBoat(SEED, heightMap).ToString("F5")); // Should print (-428.84430, 10.28744, -940.10740)
@@ -35,15 +36,47 @@ public class MainClass : MonoBehaviour
         //    Debug.Log(chiefsChest);
         //}
 
-        // Guardian locations
-        List<Vector3> guardians = Guardians.FindGuardians(SEED, heightMap);
-        foreach (var guardian in guardians)
-        {
-            Debug.Log(guardian);
-        }
+        //// Guardian locations
+        //List<Vector3> guardians = Guardians.FindGuardians(SEED, heightMap);
+        //foreach (var guardian in guardians)
+        //{
+        //    Debug.Log(guardian);
+        //}
     }
 
-    private void Awake()
+    private static void RunCombinedTest()
+    {
+        int seed = -2147483348;
+        Debug.Log($"seed: {seed}");
+        HeightMap heightMap = new(seed);
+
+        Vector3 spawn = Spawn.FindSurvivalSpawn(seed, heightMap);
+        Debug.Log($"spawn: {spawn}");
+
+        List<Vector3> chiefsChests = ChiefsChests.FindChiefsChests(seed, heightMap);
+        foreach (var chiefsChest in chiefsChests)
+        {
+            Debug.Log($"chiefsChest: {chiefsChest}");
+        }
+
+        List<Vector3> guardians = Guardians.FindGuardians(seed, heightMap);
+        foreach (var guardian in guardians)
+        {
+            Debug.Log($"guardian: {guardian}");
+        }
+
+        Vector3 boat = Boat.FindBoat(seed, heightMap);
+        Debug.Log($"boat: {boat}");
+
+        float distance = CalculateDistance.CalculateShortestDistance(spawn, chiefsChests, guardians, boat);
+        Debug.Log($"distance: {distance}");
+        //if (distance < MAX_DISTANCE_TO_LOG)
+        //{
+        //    FileStuff.LogSeed(seed, distance);
+        //}
+    }
+
+    private static void FindSeeds()
     {
         const int NUM_SEEDS_TO_TEST = 10;
         const float MAX_DISTANCE_TO_LOG = 9999;
@@ -66,5 +99,10 @@ public class MainClass : MonoBehaviour
                 FileStuff.LogSeed(seed, distance);
             }
         }
+    }
+
+    private void Awake()
+    {
+        RunCombinedTest();
     }
 }

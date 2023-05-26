@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class HeightMap
@@ -183,11 +184,12 @@ public class HeightMap
     private bool IndexRaycast(Ray ray, out Vector3 hitPoint)
     {
         // Row is z, column is x
+        // Start at ray origin
+        Triangle currentTriangle = CreateInBoundsTriangle(ref ray);
+
         SuperiorRay2D ray2D = new(ray);
         PreviousMove previousMove = PreviousMove.None;
 
-        // Start at ray origin
-        Triangle currentTriangle = new(ray.origin.z, ray.origin.x);
         while (IsInBounds(currentTriangle))
         {
             // Get the current plane and see if it intersects
@@ -214,6 +216,33 @@ public class HeightMap
     {
         return 0 <= triangle.topIndex && triangle.bottomIndex < heightMap.GetLength(0)
             && 0 <= triangle.leftIndex && triangle.rightIndex < heightMap.GetLength(1);
+    }
+
+    private Triangle CreateInBoundsTriangle(ref Ray ray)
+    {
+        const float SAFETY_OFFSET = 0.01f;
+        float distance = 0;
+        Triangle triangle = new(ray.origin.z, ray.origin.x);
+
+        if (triangle.topIndex < 0)
+        {
+            distance = (SAFETY_OFFSET - ray.origin.z) / ray.direction.z;
+        }
+        else if (triangle.bottomIndex >= heightMap.GetLength(0))
+        {
+            distance = (heightMap.GetLength(0) - 1 - SAFETY_OFFSET - ray.origin.z) / ray.direction.z;
+        }
+        else if (triangle.leftIndex < 0)
+        {
+            distance = (SAFETY_OFFSET - ray.origin.x) / ray.direction.x;
+        }
+        else if (triangle.rightIndex >= heightMap.GetLength(1))
+        {
+            distance = (heightMap.GetLength(1) - 1 - SAFETY_OFFSET - ray.origin.x) / ray.direction.x;
+        }
+
+        ray.origin = ray.GetPoint(distance);
+        return new Triangle(ray.origin.z, ray.origin.x);
     }
 
     private Triangle CalculateNextTriangle(Triangle currentTriangle, SuperiorRay2D ray2D, ref PreviousMove previousMove)
