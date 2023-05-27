@@ -78,14 +78,13 @@ public class MainClass : MonoBehaviour
 
     private static void FindSeeds()
     {
-        const int NUM_SEEDS_TO_TEST = 10;
-        const float MAX_DISTANCE_TO_LOG = 9999;
+        const float MAX_DISTANCE_TO_LOG = 3000;
         SeedCalculator seedCalculator = new(int.MinValue);
-        int[] godSeeds = seedCalculator.CalculateNextGodSeeds(NUM_SEEDS_TO_TEST);
+        int firstGodSeed = seedCalculator.CalculateNextGodSeed();
+        int seed = firstGodSeed;
 
-        for (int i = 0; i < godSeeds.Length; i++)
+        do 
         {
-            int seed = godSeeds[i];
             HeightMap heightMap = new(seed);
 
             Vector3 spawn = Spawn.FindSurvivalSpawn(seed, heightMap);
@@ -98,11 +97,13 @@ public class MainClass : MonoBehaviour
             {
                 FileStuff.LogSeed(seed, distance);
             }
-        }
+
+            seed = seedCalculator.CalculateNextGodSeed();
+        } while (seed != firstGodSeed);
     }
 
     private void Awake()
     {
-        RunCombinedTest();
+        FindSeeds();
     }
 }

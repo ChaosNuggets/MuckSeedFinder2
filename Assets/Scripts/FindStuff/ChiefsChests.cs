@@ -199,7 +199,6 @@ public static class ChiefsChests
         Vector3 pos = villageCenter + spherePos;
 
         hitPoint = heightMap.SphereCastDown(pos.x, pos.z, 1f);
-        Debug.Log($"hitPoint: {hitPoint}");
         return hitPoint.y >= WATER_HEIGHT;
     }
 

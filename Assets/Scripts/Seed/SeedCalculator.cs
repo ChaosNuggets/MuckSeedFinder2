@@ -8,7 +8,7 @@ public class SeedCalculator
     private Mode currentMode = Mode.One;
 
     private int lastPotentialGodSeed;
-    private int currentSeed;
+    public int currentSeed { get; private set; }
     private bool hasFoundPotentialGod = false;
     private readonly int[] increments =
     {
