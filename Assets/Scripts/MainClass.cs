@@ -46,14 +46,14 @@ public class MainClass : MonoBehaviour
 
     private static void RunCombinedTest()
     {
-        int seed = -2147483348;
+        int seed = -2147474266;
         Debug.Log($"seed: {seed}");
         HeightMap heightMap = new(seed);
 
         Vector3 spawn = Spawn.FindSurvivalSpawn(seed, heightMap);
         Debug.Log($"spawn: {spawn}");
 
-        List<Vector3> chiefsChests = ChiefsChests.FindChiefsChests(seed, heightMap);
+        List<Vector3> chiefsChests = ChiefsChests.FindChiefsChests(seed, heightMap, out List<Vector3> villages);
         foreach (var chiefsChest in chiefsChests)
         {
             Debug.Log($"chiefsChest: {chiefsChest}");
@@ -68,7 +68,7 @@ public class MainClass : MonoBehaviour
         Vector3 boat = Boat.FindBoat(seed, heightMap);
         Debug.Log($"boat: {boat}");
 
-        float distance = CalculateDistance.CalculateShortestDistance(spawn, chiefsChests, guardians, boat);
+        float distance = CalculateDistance.CalculateShortestDistance(spawn, chiefsChests, guardians, villages, boat);
         Debug.Log($"distance: {distance}");
         //if (distance < MAX_DISTANCE_TO_LOG)
         //{
@@ -89,11 +89,11 @@ public class MainClass : MonoBehaviour
             HeightMap heightMap = new(seed);
 
             Vector3 spawn = Spawn.FindSurvivalSpawn(seed, heightMap);
-            List<Vector3> chiefsChests = ChiefsChests.FindChiefsChests(seed, heightMap);
+            List<Vector3> chiefsChests = ChiefsChests.FindChiefsChests(seed, heightMap, out List<Vector3> villages);
             List<Vector3> guardians = Guardians.FindGuardians(seed, heightMap);
             Vector3 boat = Boat.FindBoat(seed, heightMap);
 
-            float distance = CalculateDistance.CalculateShortestDistance(spawn, chiefsChests, guardians, boat);
+            float distance = CalculateDistance.CalculateShortestDistance(spawn, chiefsChests, guardians, villages, boat);
             if (distance < MAX_DISTANCE_TO_LOG)
             {
                 FileStuff.LogSeed(seed, distance);

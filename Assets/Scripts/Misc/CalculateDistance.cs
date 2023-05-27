@@ -4,13 +4,13 @@ using UnityEngine;
 
 public static class CalculateDistance
 {
-    public static float CalculateShortestDistance(Vector3 spawn, IList<Vector3> chiefsChests, IList<Vector3> guardians, Vector3 boat)
+    public static float CalculateShortestDistance(Vector3 spawn, IList<Vector3> chiefsChests, IList<Vector3> guardians, IList<Vector3> villages, Vector3 boat)
     {
         float shortestDistance = float.MaxValue;
 
         foreach (Vector3 chiefsChest in chiefsChests)
         {
-            foreach (Vector3 village in chiefsChests)
+            foreach (Vector3 village in villages)
             {
                 List<Vector3> travelPoints = new()
                     {

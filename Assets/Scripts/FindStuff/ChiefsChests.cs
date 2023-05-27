@@ -3,7 +3,7 @@ using UnityEngine;
 
 public static class ChiefsChests
 {
-    public static List<Vector3> FindChiefsChests(int seed, HeightMap heightMap)
+    public static List<Vector3> FindChiefsChests(int seed, HeightMap heightMap, out List<Vector3> villages)
     {
         const int RESOURCE_GEN_OFFSET = 3;
         const int MAX_VILLAGES = 3;
@@ -13,11 +13,11 @@ public static class ChiefsChests
         const float WORLD_SCALE = HeightMap.WORLD_SCALE * WORLD_EDGE_BUFFER;
 
         int numIterations = 0;
-        int numVillages = 0;
         ConsistentRandom rand = new(seed + RESOURCE_GEN_OFFSET);
         List<Vector3> chiefsChests = new();
+        villages = new List<Vector3>();
 
-        while (numVillages < MAX_VILLAGES)
+        while (villages.Count < MAX_VILLAGES)
         {
             numIterations++;
 
@@ -32,9 +32,9 @@ public static class ChiefsChests
             }
 
             // If the village should be placed
-            numVillages++;
+            villages.Add(villageCenter);
 
-            bool shouldBreak = numVillages >= MAX_VILLAGES || (numIterations > MAX_VILLAGES * 2 && numVillages >= MIN_VILLAGES) || numIterations > MAX_VILLAGES * 10;
+            bool shouldBreak = villages.Count >= MAX_VILLAGES || (numIterations > MAX_VILLAGES * 2 && villages.Count >= MIN_VILLAGES) || numIterations > MAX_VILLAGES * 10;
             if (GenerateStructures(rand, villageCenter, heightMap, shouldBreak, out Vector3 chiefsChest))
             {
                 chiefsChests.Add(chiefsChest);
@@ -199,6 +199,7 @@ public static class ChiefsChests
         Vector3 pos = villageCenter + spherePos;
 
         hitPoint = heightMap.SphereCastDown(pos.x, pos.z, 1f);
+        Debug.Log($"hitPoint: {hitPoint}");
         return hitPoint.y >= WATER_HEIGHT;
     }
 
