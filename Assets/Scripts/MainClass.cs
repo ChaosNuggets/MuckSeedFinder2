@@ -1,8 +1,12 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class MainClass : MonoBehaviour
 {
+    private static SeedCalculator seedCalculator = new(int.MinValue);
+    private static int startSeed = seedCalculator.CalculateNextGodSeed();
+
     private static void RunIndividualTests()
     {
         //const int SEED = 1691052140;
@@ -76,14 +80,16 @@ public class MainClass : MonoBehaviour
         //}
     }
 
-    private static void FindSeeds()
+
+    private void Update()
     {
         const float MAX_DISTANCE_TO_LOG = 3000;
-        SeedCalculator seedCalculator = new(int.MinValue);
-        int firstGodSeed = seedCalculator.CalculateNextGodSeed();
-        int seed = firstGodSeed;
+        const int SEEDS_BETWEEN_UPDATES = 10000;
 
-        do 
+        int endSeed = startSeed + SEEDS_BETWEEN_UPDATES;
+
+        // seed >= startSeed is for handling the overflow edge case
+        for (int seed = startSeed; seed >= startSeed && seed < endSeed; seed = seedCalculator.CalculateNextGodSeed())
         {
             HeightMap heightMap = new(seed);
 
@@ -97,13 +103,8 @@ public class MainClass : MonoBehaviour
             {
                 FileStuff.LogSeed(seed, distance);
             }
+        }
 
-            seed = seedCalculator.CalculateNextGodSeed();
-        } while (seed != firstGodSeed);
-    }
-
-    private void Awake()
-    {
-        FindSeeds();
+        startSeed = endSeed;
     }
 }
