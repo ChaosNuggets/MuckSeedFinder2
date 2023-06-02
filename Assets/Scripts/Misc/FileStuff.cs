@@ -1,9 +1,18 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
 public static class FileStuff
 {
+    public static void LogSeeds(IList<(int, float)> seeds)
+    {
+        foreach(var (seed, distance) in seeds)
+        {
+            LogSeed(seed, distance);
+        }
+    }
+
     public static void LogSeed(int seed, float distance)
     {
         string path = Environment.GetFolderPath(
@@ -16,8 +25,6 @@ public static class FileStuff
         }
 
         WriteData(path, seed, distance);
-
-        Debug.Log($"Logged seed {seed}, distance {distance}");
     }
 
     private static void WriteHeader(string path)

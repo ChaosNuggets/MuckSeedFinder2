@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class CalculateDistance
 {
-    public static float CalculateShortestDistance(Vector3 spawn, IList<Vector3> chiefsChests, IList<Vector3> guardians, IList<Vector3> villages, Vector3 boat)
+    public static float CalculateTotalDistance(Vector3 spawn, IList<Vector3> chiefsChests, IList<Vector3> guardians, IList<Vector3> villages, Vector3 boat)
     {
         float shortestDistance = float.MaxValue;
 
