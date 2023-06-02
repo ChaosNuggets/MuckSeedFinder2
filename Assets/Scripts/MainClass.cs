@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -46,6 +47,7 @@ public class MainClass : MonoBehaviour
     {
         const int SEEDS_PER_THREAD = 10000;
         List<(int, float)> seeds = new();
+        var tasks = new Task<List<(int, float)>>[NUM_THREADS];
 
         for (int i = 0; i < NUM_THREADS; i++)
         {
@@ -54,7 +56,13 @@ public class MainClass : MonoBehaviour
             {
                 threadEndSeed = endSeeds[i];
             }
-            seeds.AddRange(FindSeeds(seedCalculators[i], currentSeeds[i], threadEndSeed, out currentSeeds[i]));
+            int index = i; // avoid access to modified closure
+            tasks[i] = Task.Run(() => FindSeeds(seedCalculators[index], currentSeeds[index], threadEndSeed, out currentSeeds[index]));
+        }
+
+        foreach (var task in tasks)
+        {
+            seeds.AddRange(task.Result);
         }
 
         return seeds;
