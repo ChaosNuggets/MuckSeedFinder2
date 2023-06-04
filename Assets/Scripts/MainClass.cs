@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class MainClass : MonoBehaviour
@@ -10,7 +9,7 @@ public class MainClass : MonoBehaviour
     public TextMeshProUGUI estimatedTimeText;
     public TextMeshProUGUI speedText;
 
-    private const int NUM_THREADS = 5;
+    private const int NUM_THREADS = 10;
     private const int NUM_SEEDS_PER_FRAME = 10;
     private readonly int[] startSeeds = new int[NUM_THREADS];
     private readonly int[] endSeeds = new int[NUM_THREADS];
@@ -40,7 +39,7 @@ public class MainClass : MonoBehaviour
 
     private static List<(int, float)> FindSeeds(int[] seeds, HeightMap[] heightMaps, Vector3[] spawns)
     {
-        const float MAX_DISTANCE_TO_LOG = 3000;
+        const float MAX_DISTANCE_TO_LOG = 2000;
         List<(int, float)> godDistanceSeeds = new();
 
         for (int i = 0; i < NUM_SEEDS_PER_FRAME && heightMaps[i] != null; i++)
@@ -53,7 +52,7 @@ public class MainClass : MonoBehaviour
             if (distance <= MAX_DISTANCE_TO_LOG)
             {
                 godDistanceSeeds.Add((seeds[i], distance));
-                //Debug.Log($"Found seed {seeds[i]}, distance {distance}");
+                Debug.Log($"Found seed {seeds[i]}, distance {distance}");
             }
         }
 
