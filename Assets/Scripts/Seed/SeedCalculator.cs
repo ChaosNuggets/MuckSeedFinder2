@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 public class SeedCalculator
 {
     private enum Mode

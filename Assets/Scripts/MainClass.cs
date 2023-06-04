@@ -78,45 +78,11 @@ public class MainClass : MonoBehaviour
             var (seeds, heightMaps) = heightMapTasks[i].Result;
             for (int j = 0; j < NUM_SEEDS_PER_FRAME; j++)
             {
-                if (seeds[j] == -2147320059
-                    || seeds[j] == -2147259148
-                    || seeds[j] == -2147115284
-                    || seeds[j] == -2147001245
-                    || seeds[j] == -2146970159
-                    || seeds[j] == -2146939073
-                    || seeds[j] == -2146826333
-                    || seeds[j] == -2146725197
-                    || seeds[j] == -2146664324
-                    || seeds[j] == -2146652682
-                    || seeds[j] == -2146569729
-                    || seeds[j] == -2146530841
-                    || seeds[j] == -2146499736
-                    )
-                {
-                    Debug.Log(seeds[j]);
-                }
                 if (heightMaps[j] == null)
                 {
                     break;
                 }
                 spawns[j] = Spawn.FindSurvivalSpawn(seeds[j], heightMaps[j]);
-                if (seeds[j] == -2147320059
-                    || seeds[j] == -2147259148
-                    || seeds[j] == -2147115284
-                    || seeds[j] == -2147001245
-                    || seeds[j] == -2146970159
-                    || seeds[j] == -2146939073
-                    || seeds[j] == -2146826333
-                    || seeds[j] == -2146725197
-                    || seeds[j] == -2146664324
-                    || seeds[j] == -2146652682
-                    || seeds[j] == -2146569729
-                    || seeds[j] == -2146530841
-                    || seeds[j] == -2146499736
-                    )
-                {
-                    Debug.Log(seeds[j]);
-                }
             }
 
             findSeedTasks[i] = Task.Run(() => FindSeeds(seeds, heightMaps, spawns));

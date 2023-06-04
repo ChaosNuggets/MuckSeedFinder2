@@ -1,12 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 public static class CalculateItems
 {
-    const int BowIndex = 9;
-    const int SpearIndex = 10;
-    private const int ChestSize = 21;
-    private static readonly int[] cells = new int[ChestSize];
+    private const int BOW_INDEX = 9;
+    private const int SPEAR_INDEX = 10;
 
     private static readonly float[] dropChances =
     {
@@ -30,10 +29,6 @@ public static class CalculateItems
     {
         ConsistentRandom rand = new(seed);
         List<int> items = new();
-        for (int i = 0; i < cells.Length; i++)
-        {
-            cells[i] = -1;
-        }
 
         // Go to next random number 9 times
         for (int i = 0; i < dropChances.Count(); i++)
@@ -42,7 +37,7 @@ public static class CalculateItems
             {
                 items.Add(i);
             }
-            else if (i == BowIndex || i == SpearIndex)
+            else if (i == BOW_INDEX || i == SPEAR_INDEX)
             {
                 return (false, false);
             }
@@ -54,11 +49,15 @@ public static class CalculateItems
 
     private static bool IsChestGood(List<int> items, ConsistentRandom rand)
     {
+        const int CHEST_SIZE = 21;
+        int[] cells = new int[CHEST_SIZE];
+
         List<int> intList = new();
-        for (int index = 0; index < ChestSize; index++)
+        for (int index = 0; index < CHEST_SIZE; index++)
         {
             intList.Add(index);
         }
+
         foreach (int item in items)
         {
             int index = rand.Next(0, intList.Count);
@@ -66,6 +65,6 @@ public static class CalculateItems
             cells[index] = item;
         }
 
-        return cells.Contains(SpearIndex) && cells.Contains(BowIndex);
+        return cells.Contains(SPEAR_INDEX) && cells.Contains(BOW_INDEX);
     }
 }
