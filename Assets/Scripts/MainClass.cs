@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
@@ -52,7 +53,6 @@ public class MainClass : MonoBehaviour
             if (distance <= MAX_DISTANCE_TO_LOG)
             {
                 godDistanceSeeds.Add((seeds[i], distance));
-                Debug.Log($"Found seed {seeds[i]}, distance {distance}");
             }
         }
 
@@ -70,22 +70,32 @@ public class MainClass : MonoBehaviour
             heightMapTasks[i] = Task.Run(() => GetHeightMaps(seedCalculators[index], startSeeds[index], endSeeds[index]));
         }
 
-        var findSeedTasks = new Task<List<(int, float)>>[NUM_THREADS];
+        var spawns = new Vector3[NUM_THREADS][];
+        var seeds = new int[NUM_THREADS][];
+        var heightMaps = new HeightMap[NUM_THREADS][];
         for (int i = 0; i < NUM_THREADS; i++)
         {
-            var spawns = new Vector3[NUM_SEEDS_PER_FRAME];
-            var (seeds, heightMaps) = heightMapTasks[i].Result;
+            spawns[i] = new Vector3[NUM_SEEDS_PER_FRAME];
+            (seeds[i], heightMaps[i]) = heightMapTasks[i].Result;
             for (int j = 0; j < NUM_SEEDS_PER_FRAME; j++)
             {
-                if (heightMaps[j] == null)
+                if (heightMaps[i][j] == null)
                 {
                     break;
                 }
-                spawns[j] = Spawn.FindSurvivalSpawn(seeds[j], heightMaps[j]);
+                spawns[i][j] = Spawn.FindSurvivalSpawn(seeds[i][j], heightMaps[i][j]);
             }
-
-            findSeedTasks[i] = Task.Run(() => FindSeeds(seeds, heightMaps, spawns));
         }
+
+        var findSeedTasks = new Task<List<(int, float)>>[NUM_THREADS];
+        for (int i = 0; i < NUM_THREADS; i++)
+        {
+            int index = i;
+            findSeedTasks[i] = Task.Run(() => FindSeeds(seeds[index], heightMaps[index], spawns[index]));
+        }
+
+        Task.WaitAll(findSeedTasks);
+        Console.WriteLine(3);
 
         foreach (var findSeedTask in findSeedTasks)
         {
@@ -107,6 +117,7 @@ public class MainClass : MonoBehaviour
         }
 
         seedsTestedText.text = $"Seeds Tested:\n{numTestedSeeds} / {uint.MaxValue}";
+        Console.WriteLine(seedsTestedText.text);
 
         float secondsLeft = Time.unscaledTime / numTestedSeeds * (uint.MaxValue - numTestedSeeds);
         int minutesLeft = Mathf.RoundToInt(secondsLeft / SECONDS_PER_MINUTE);
@@ -114,8 +125,10 @@ public class MainClass : MonoBehaviour
         minutesLeft %= MINUTES_PER_HOUR;
 
         estimatedTimeText.text = $"Estimated Time Remaining:\n{hoursLeft} hr {minutesLeft} min";
+        Console.WriteLine(estimatedTimeText.text);
 
         speedText.text = $"Speed:\n{Mathf.RoundToInt(numTestedSeeds / Time.unscaledTime)} seeds / sec";
+        Console.WriteLine(speedText.text);
     }
 
     private void Update()

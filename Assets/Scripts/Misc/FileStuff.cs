@@ -10,6 +10,7 @@ public static class FileStuff
         foreach(var (seed, distance) in seeds)
         {
             LogSeed(seed, distance);
+            Console.WriteLine($"Logged seed {seed}, distance {distance}");
         }
     }
 
