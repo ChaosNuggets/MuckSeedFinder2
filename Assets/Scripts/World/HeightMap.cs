@@ -2,9 +2,16 @@ using UnityEngine;
 
 public class HeightMap
 {
+    /* The world is divided into a grid of squares.
+     * Each square has a diagonal line going from the top left to the bottom right,
+     * splitting it into two right triangles. These triangles are
+     * the planes that make up the land.
+     */
+
     private readonly float[,] heightMap;
     public const int MAP_CHUNK_SIZE = 241;
     public const int WORLD_SCALE = 12;
+    const float SAFETY_OFFSET = 0.01f; // The amount we move the ray origin in by
 
     public HeightMap(int seed)
     {
@@ -204,7 +211,7 @@ public class HeightMap
             }
 
             // If it doesn't intersect or if the intersection point is on a different plane, move to the next plane.
-            currentTriangle = CalculateNextTriangle(currentTriangle, ray2D, ref previousMove);
+            currentTriangle = CalculateNextTriangle(currentTriangle, ref ray2D);
         }
 
         hitPoint = Vector3.zero;
@@ -219,24 +226,27 @@ public class HeightMap
 
     private Triangle CreateInBoundsTriangle(ref Ray ray)
     {
-        const float SAFETY_OFFSET = 0.01f;
         float distance = 0;
         Triangle triangle = new(ray.origin.z, ray.origin.x);
 
         if (triangle.topIndex < 0)
         {
+            // ray.origin.z + ray.direction.z * distance = SAFETY_OFFSET
             distance = (SAFETY_OFFSET - ray.origin.z) / ray.direction.z;
         }
         else if (triangle.bottomIndex >= heightMap.GetLength(0))
         {
+            // ray.origin.z + ray.direction.z * distance = heightMap.GetLength(0) - 1 - SAFETY_OFFSET
             distance = (heightMap.GetLength(0) - 1 - SAFETY_OFFSET - ray.origin.z) / ray.direction.z;
         }
         else if (triangle.leftIndex < 0)
         {
+            // ray.origin.x + ray.direction.x * distance = SAFETY_OFFSET
             distance = (SAFETY_OFFSET - ray.origin.x) / ray.direction.x;
         }
         else if (triangle.rightIndex >= heightMap.GetLength(1))
         {
+            // ray.origin.x + ray.direction.x * distance = heightMap.GetLength(1) - 1 - SAFETY_OFFSET
             distance = (heightMap.GetLength(1) - 1 - SAFETY_OFFSET - ray.origin.x) / ray.direction.x;
         }
 
@@ -244,66 +254,79 @@ public class HeightMap
         return new Triangle(ray.origin.z, ray.origin.x);
     }
 
-    private Triangle CalculateNextTriangle(Triangle currentTriangle, SuperiorRay2D ray2D, ref PreviousMove previousMove)
+    private Triangle CalculateNextTriangle(Triangle currentTriangle, ref SuperiorRay2D ray2D)
     {
         // Create the lines
         var (topLeft, bottomRight, otherPoint) = currentTriangle.GetVertices();
 
         // Test each edge of the triangle until we find an edge which the ray intersects with.
         // If the ray intersects with the left, move left. If the ray intersects with the bottom, move down, etc.
-        // The previous move variable helps prevent it from switching back and forth between two triangles
+        // Updating the ray2D origin helps prevent it from switching back and forth between two triangles
+
         LineSegment topOrLeft = new(topLeft, otherPoint);
         if (LineSegment.DoesIntersect(topOrLeft, ray2D))
         {
-            // This is testing top
-            if (currentTriangle.isTopTriangle && previousMove != PreviousMove.Down)
+            float distance;
+
+            // If intersecting with top
+            if (currentTriangle.isTopTriangle)
             {
-                previousMove = PreviousMove.Up;
+                // ray2D.origin.y + ray2D.direction.y * distance = currentTriangle.topIndex - SAFETY_OFFSET
+                distance = (currentTriangle.topIndex - SAFETY_OFFSET - ray2D.origin.y) / ray2D.direction.y;
+                ray2D.origin = ray2D.GetPoint(distance);
+
                 return new Triangle(
                     currentTriangle.topIndex - 1,
                     currentTriangle.leftIndex,
                     false
                 );
             }
-            // This is testing left
-            if (!currentTriangle.isTopTriangle && previousMove != PreviousMove.Right)
-            {
-                previousMove = PreviousMove.Left;
-                return new Triangle(
-                    currentTriangle.topIndex,
-                    currentTriangle.leftIndex - 1,
-                    true
-                );
-            }
+
+            // If intersecting with left
+            // ray2D.origin.x + ray2D.direction.x * distance = currentTriangle.leftIndex - SAFETY_OFFSET
+            distance = (currentTriangle.leftIndex - SAFETY_OFFSET - ray2D.origin.x) / ray2D.direction.x;
+            ray2D.origin = ray2D.GetPoint(distance);
+
+            return new Triangle(
+                currentTriangle.topIndex,
+                currentTriangle.leftIndex - 1,
+                true
+            );
         }
 
         LineSegment rightOrBottom = new(bottomRight, otherPoint);
         if (LineSegment.DoesIntersect(rightOrBottom, ray2D))
         {
-            // This is testing right
-            if (currentTriangle.isTopTriangle && previousMove != PreviousMove.Left)
+            float distance;
+
+            // If intersecting with right
+            if (currentTriangle.isTopTriangle)
             {
-                previousMove = PreviousMove.Right;
+                // ray2D.origin.x + ray2D.direction.x * distance = currentTriangle.rightIndex + SAFETY_OFFSET
+                distance = (currentTriangle.rightIndex + SAFETY_OFFSET - ray2D.origin.x) / ray2D.direction.x;
+                ray2D.origin = ray2D.GetPoint(distance);
+
                 return new Triangle(
                     currentTriangle.topIndex,
                     currentTriangle.leftIndex + 1,
                     false
                 );
             }
-            // This is testing bottom
-            if (!currentTriangle.isTopTriangle && previousMove != PreviousMove.Up)
-            {
-                previousMove = PreviousMove.Down;
-                return new Triangle(
-                    currentTriangle.topIndex + 1,
-                    currentTriangle.leftIndex,
-                    true
-                );
-            }
+
+            // If intersecting with bottom
+            // ray2D.origin.y + ray2D.direction.y * distance = currentTriangle.bottomIndex + SAFETY_OFFSET
+            distance = (currentTriangle.bottomIndex + SAFETY_OFFSET - ray2D.origin.y) / ray2D.direction.y;
+            ray2D.origin = ray2D.GetPoint(distance);
+
+            return new Triangle(
+                currentTriangle.topIndex + 1,
+                currentTriangle.leftIndex,
+                true
+            );
         }
 
         // If it intersects with the diagonal line
-        previousMove = PreviousMove.Diagonal;
+        // ray2D.origin + ray2D.direction * distance = 
         return new Triangle(
             currentTriangle.topIndex,
             currentTriangle.leftIndex,

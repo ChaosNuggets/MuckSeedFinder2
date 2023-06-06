@@ -1,11 +1,13 @@
 using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public readonly struct Triangle : IEquatable<Triangle>
 {
     public readonly int topIndex, leftIndex;
     public int bottomIndex
-    { 
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
             return topIndex + 1;
@@ -13,6 +15,7 @@ public readonly struct Triangle : IEquatable<Triangle>
     }
     public int rightIndex
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
             return leftIndex + 1;

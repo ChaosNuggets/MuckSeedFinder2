@@ -12,7 +12,7 @@ public readonly struct LineSegment
 
     private static int CalculateDirection(Vector2 a, Vector2 b, Vector2 c)
     {
-        double cross = (b.y - a.y) * (c.x - b.x)
+        float cross = (b.y - a.y) * (c.x - b.x)
             - (b.x - a.x) * (c.y - b.y); // Computes the cross product between vectors BC and AB
 
         if (cross == 0)
@@ -33,8 +33,7 @@ public readonly struct LineSegment
         int dir4 = CalculateDirection(line2.point1, line2.point2, line1.point2);
 
         // When intersecting
-        if (dir1 != dir2 && dir3 != dir4)
-            return true;
+        return dir1 != dir2 && dir3 != dir4;
 
         // This is commented out because we don't want to count parallel lines as intersecting
 //        // When point2 of line2 are on the line1
@@ -53,7 +52,6 @@ public readonly struct LineSegment
 //        if (dir4 == 0 && onLine(line2, line1.point2))
 //            return true;
 //
-        return false;
     }
 
     public static bool DoesIntersect(LineSegment line, SuperiorRay2D ray2D)
