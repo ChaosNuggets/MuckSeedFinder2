@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class HeightMap
@@ -194,7 +195,9 @@ public class HeightMap
         Triangle currentTriangle = CreateInBoundsTriangle(ref ray);
 
         SuperiorRay2D ray2D = new(ray);
-        PreviousMove previousMove = PreviousMove.None;
+        //const int NUM_TRIANGLES_INTERSECTED_ON_DIAGONAL = 4;
+        //HashSet<Triangle> testedTriangles = new((MAP_CHUNK_SIZE - 1) / 2 * NUM_TRIANGLES_INTERSECTED_ON_DIAGONAL);
+        HashSet<Triangle> testedTriangles = new();
 
         while (IsInBounds(currentTriangle))
         {
@@ -211,7 +214,8 @@ public class HeightMap
             }
 
             // If it doesn't intersect or if the intersection point is on a different plane, move to the next plane.
-            currentTriangle = CalculateNextTriangle(currentTriangle, ref ray2D);
+            testedTriangles.Add(currentTriangle);
+            currentTriangle = CalculateNextTriangle(currentTriangle, ray2D, testedTriangles);
         }
 
         hitPoint = Vector3.zero;
@@ -254,93 +258,86 @@ public class HeightMap
         return new Triangle(ray.origin.z, ray.origin.x);
     }
 
-    private Triangle CalculateNextTriangle(Triangle currentTriangle, ref SuperiorRay2D ray2D)
+    private Triangle CalculateNextTriangle(Triangle currentTriangle, SuperiorRay2D ray2D, HashSet<Triangle> testedTriangles)
     {
         // Create the lines
         var (topLeft, bottomRight, otherPoint) = currentTriangle.GetVertices();
 
         // Test each edge of the triangle until we find an edge which the ray intersects with.
         // If the ray intersects with the left, move left. If the ray intersects with the bottom, move down, etc.
-        // Updating the ray2D origin helps prevent it from switching back and forth between two triangles
+        // the testedTriangles set helps prevent it from retesting the same triangle
 
         LineSegment topOrLeft = new(topLeft, otherPoint);
         if (LineSegment.DoesIntersect(topOrLeft, ray2D))
         {
-            float distance;
-
             // If intersecting with top
             if (currentTriangle.isTopTriangle)
             {
-                // ray2D.origin.y + ray2D.direction.y * distance = currentTriangle.topIndex - SAFETY_OFFSET
-                distance = (currentTriangle.topIndex - SAFETY_OFFSET - ray2D.origin.y) / ray2D.direction.y;
-                ray2D.origin = ray2D.GetPoint(distance);
-
-                return new Triangle(
+                Triangle potentialNextTriangle = new(
                     currentTriangle.topIndex - 1,
                     currentTriangle.leftIndex,
                     false
                 );
+
+                if (!testedTriangles.Contains(potentialNextTriangle))
+                {
+                    return potentialNextTriangle;
+                }
             }
+            else
+            {
+                // If intersecting with left
+                Triangle potentialNextTriangle = new(
+                    currentTriangle.topIndex,
+                    currentTriangle.leftIndex - 1,
+                    true
+                );
 
-            // If intersecting with left
-            // ray2D.origin.x + ray2D.direction.x * distance = currentTriangle.leftIndex - SAFETY_OFFSET
-            distance = (currentTriangle.leftIndex - SAFETY_OFFSET - ray2D.origin.x) / ray2D.direction.x;
-            ray2D.origin = ray2D.GetPoint(distance);
-
-            return new Triangle(
-                currentTriangle.topIndex,
-                currentTriangle.leftIndex - 1,
-                true
-            );
+                if (!testedTriangles.Contains(potentialNextTriangle))
+                {
+                    return potentialNextTriangle;
+                }
+            }
         }
 
         LineSegment rightOrBottom = new(bottomRight, otherPoint);
         if (LineSegment.DoesIntersect(rightOrBottom, ray2D))
         {
-            float distance;
-
             // If intersecting with right
             if (currentTriangle.isTopTriangle)
             {
-                // ray2D.origin.x + ray2D.direction.x * distance = currentTriangle.rightIndex + SAFETY_OFFSET
-                distance = (currentTriangle.rightIndex + SAFETY_OFFSET - ray2D.origin.x) / ray2D.direction.x;
-                ray2D.origin = ray2D.GetPoint(distance);
-
-                return new Triangle(
+                Triangle potentialNextTriangle = new(
                     currentTriangle.topIndex,
                     currentTriangle.leftIndex + 1,
                     false
                 );
+
+                if (!testedTriangles.Contains(potentialNextTriangle))
+                {
+                    return potentialNextTriangle;
+                }
             }
+            else
+            {
+                // If intersecting with bottom
+                Triangle potentialNextTriangle = new(
+                    currentTriangle.topIndex + 1,
+                    currentTriangle.leftIndex,
+                    true
+                );
 
-            // If intersecting with bottom
-            // ray2D.origin.y + ray2D.direction.y * distance = currentTriangle.bottomIndex + SAFETY_OFFSET
-            distance = (currentTriangle.bottomIndex + SAFETY_OFFSET - ray2D.origin.y) / ray2D.direction.y;
-            ray2D.origin = ray2D.GetPoint(distance);
-
-            return new Triangle(
-                currentTriangle.topIndex + 1,
-                currentTriangle.leftIndex,
-                true
-            );
+                if (!testedTriangles.Contains(potentialNextTriangle))
+                {
+                    return potentialNextTriangle;
+                }
+            }
         }
 
         // If it intersects with the diagonal line
-        // ray2D.origin + ray2D.direction * distance = 
         return new Triangle(
             currentTriangle.topIndex,
             currentTriangle.leftIndex,
             !currentTriangle.isTopTriangle
         );
-    }
-
-    private enum PreviousMove
-    {
-        None,
-        Left,
-        Right,
-        Up,
-        Down,
-        Diagonal
     }
 }
