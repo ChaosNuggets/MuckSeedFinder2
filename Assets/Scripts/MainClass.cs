@@ -10,8 +10,8 @@ public class MainClass : MonoBehaviour
     public TextMeshProUGUI estimatedTimeText;
     public TextMeshProUGUI speedText;
 
-    private const int NUM_THREADS = 1;
-    private const int NUM_SEEDS_PER_FRAME = 1;
+    private const int NUM_THREADS = 10;
+    private const int NUM_SEEDS_PER_FRAME = 10;
     private readonly int[] startSeeds = new int[NUM_THREADS];
     private readonly int[] endSeeds = new int[NUM_THREADS];
 
@@ -94,9 +94,6 @@ public class MainClass : MonoBehaviour
             findSeedTasks[i] = Task.Run(() => FindSeeds(seeds[index], heightMaps[index], spawns[index]));
         }
 
-        Task.WaitAll(findSeedTasks);
-        Console.WriteLine(3);
-
         foreach (var findSeedTask in findSeedTasks)
         {
             godDistanceSeeds.AddRange(findSeedTask.Result);
@@ -141,8 +138,7 @@ public class MainClass : MonoBehaviour
     {
         const uint SEED_CHUNK_SIZE = uint.MaxValue / NUM_THREADS;
 
-        startSeeds[0] = 1289442599;
-        //startSeeds[0] = int.MinValue;
+        startSeeds[0] = int.MinValue;
         for (int i = 0; i < NUM_THREADS - 1; i++)
         {
             startSeeds[i + 1] = (int)(startSeeds[i] + SEED_CHUNK_SIZE);

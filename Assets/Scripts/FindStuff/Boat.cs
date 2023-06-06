@@ -13,17 +13,7 @@ public static class Boat
         Vector3 origin = (HeightMap.MAP_CHUNK_SIZE / 2f) * HeightMap.WORLD_SCALE * new Vector3(x, 0, z).normalized;
         origin.y = WATER_HEIGHT + 1;
 
-        if (seed == 1289442599)
-        {
-            Debug.Log("start");
-        }
-
         heightMap.CoordRaycast(origin, new Vector3(0, origin.y, 0), out Vector3 hitPoint);
-
-        if (seed == 1289442599)
-        {
-            Debug.Log("end");
-        }
 
         return hitPoint;
     }
