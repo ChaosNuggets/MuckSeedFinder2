@@ -195,9 +195,6 @@ public class HeightMap
         Triangle currentTriangle = CreateInBoundsTriangle(ref ray);
 
         SuperiorRay2D ray2D = new(ray);
-        //const int NUM_TRIANGLES_INTERSECTED_ON_DIAGONAL = 4;
-        //HashSet<Triangle> testedTriangles = new((MAP_CHUNK_SIZE - 1) / 2 * NUM_TRIANGLES_INTERSECTED_ON_DIAGONAL);
-        HashSet<Triangle> testedTriangles = new();
 
         while (IsInBounds(currentTriangle))
         {
@@ -214,8 +211,7 @@ public class HeightMap
             }
 
             // If it doesn't intersect or if the intersection point is on a different plane, move to the next plane.
-            testedTriangles.Add(currentTriangle);
-            currentTriangle = CalculateNextTriangle(currentTriangle, ray2D, testedTriangles);
+            currentTriangle = CalculateNextTriangle(currentTriangle, ray2D);
         }
 
         hitPoint = Vector3.zero;
@@ -258,78 +254,57 @@ public class HeightMap
         return new Triangle(ray.origin.z, ray.origin.x);
     }
 
-    private Triangle CalculateNextTriangle(Triangle currentTriangle, SuperiorRay2D ray2D, HashSet<Triangle> testedTriangles)
+    private Triangle CalculateNextTriangle(Triangle currentTriangle, SuperiorRay2D ray2D)
     {
         // Create the lines
         var (topLeft, bottomRight, otherPoint) = currentTriangle.GetVertices();
 
         // Test each edge of the triangle until we find an edge which the ray intersects with.
         // If the ray intersects with the left, move left. If the ray intersects with the bottom, move down, etc.
-        // the testedTriangles set helps prevent it from retesting the same triangle
 
         LineSegment topOrLeft = new(topLeft, otherPoint);
         if (LineSegment.DoesIntersect(topOrLeft, ray2D))
         {
-            // If intersecting with top
-            if (currentTriangle.isTopTriangle)
+            // If intersecting with top and ray is going up
+            if (currentTriangle.isTopTriangle && ray2D.direction.y < 0)
             {
-                Triangle potentialNextTriangle = new(
+                return new Triangle(
                     currentTriangle.topIndex - 1,
                     currentTriangle.leftIndex,
                     false
                 );
-
-                if (!testedTriangles.Contains(potentialNextTriangle))
-                {
-                    return potentialNextTriangle;
-                }
             }
-            else
+            // If intersecting with left and ray is going left
+            else if (!currentTriangle.isTopTriangle && ray2D.direction.x < 0)
             {
-                // If intersecting with left
-                Triangle potentialNextTriangle = new(
+                return new Triangle(
                     currentTriangle.topIndex,
                     currentTriangle.leftIndex - 1,
                     true
                 );
-
-                if (!testedTriangles.Contains(potentialNextTriangle))
-                {
-                    return potentialNextTriangle;
-                }
             }
         }
 
         LineSegment rightOrBottom = new(bottomRight, otherPoint);
         if (LineSegment.DoesIntersect(rightOrBottom, ray2D))
         {
-            // If intersecting with right
-            if (currentTriangle.isTopTriangle)
+            // If intersecting with right and ray is going right
+            if (currentTriangle.isTopTriangle && ray2D.direction.x > 0)
             {
-                Triangle potentialNextTriangle = new(
+                return new Triangle(
                     currentTriangle.topIndex,
                     currentTriangle.leftIndex + 1,
                     false
                 );
-
-                if (!testedTriangles.Contains(potentialNextTriangle))
-                {
-                    return potentialNextTriangle;
-                }
             }
-            else
+            // If intersecting with bottom and ray is going down
+            else if (!currentTriangle.isTopTriangle && ray2D.direction.y > 0)
             {
-                // If intersecting with bottom
-                Triangle potentialNextTriangle = new(
+                return new Triangle(
                     currentTriangle.topIndex + 1,
                     currentTriangle.leftIndex,
                     true
                 );
-
-                if (!testedTriangles.Contains(potentialNextTriangle))
-                {
-                    return potentialNextTriangle;
-                }
             }
         }
 

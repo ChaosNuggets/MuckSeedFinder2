@@ -142,6 +142,7 @@ public class MainClass : MonoBehaviour
         const uint SEED_CHUNK_SIZE = uint.MaxValue / NUM_THREADS;
 
         startSeeds[0] = 1289442599;
+        //startSeeds[0] = int.MinValue;
         for (int i = 0; i < NUM_THREADS - 1; i++)
         {
             startSeeds[i + 1] = (int)(startSeeds[i] + SEED_CHUNK_SIZE);
