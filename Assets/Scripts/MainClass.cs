@@ -62,36 +62,30 @@ public class MainClass : MonoBehaviour
     private List<(int, float)> FindSeeds()
     {
         List<(int, float)> godDistanceSeeds = new();
-        var heightMapTasks = new Task<(int[], HeightMap[])>[NUM_THREADS];
 
+        var heightMapTasks = new Task<(int[], HeightMap[])>[NUM_THREADS];
         for (int i = 0; i < NUM_THREADS; i++)
         {
             int index = i; // avoid access to modified closure
             heightMapTasks[i] = Task.Run(() => GetHeightMaps(seedCalculators[index], startSeeds[index], endSeeds[index]));
         }
 
-        var spawns = new Vector3[NUM_THREADS][];
-        var seeds = new int[NUM_THREADS][];
-        var heightMaps = new HeightMap[NUM_THREADS][];
-        for (int i = 0; i < NUM_THREADS; i++)
-        {
-            spawns[i] = new Vector3[NUM_SEEDS_PER_FRAME];
-            (seeds[i], heightMaps[i]) = heightMapTasks[i].Result;
-            for (int j = 0; j < NUM_SEEDS_PER_FRAME; j++)
-            {
-                if (heightMaps[i][j] == null)
-                {
-                    break;
-                }
-                spawns[i][j] = Spawn.FindSurvivalSpawn(seeds[i][j], heightMaps[i][j]);
-            }
-        }
-
         var findSeedTasks = new Task<List<(int, float)>>[NUM_THREADS];
         for (int i = 0; i < NUM_THREADS; i++)
         {
-            int index = i;
-            findSeedTasks[i] = Task.Run(() => FindSeeds(seeds[index], heightMaps[index], spawns[index]));
+            var (seeds, heightMaps) = heightMapTasks[i].Result;
+
+            var spawns = new Vector3[NUM_SEEDS_PER_FRAME];
+            for (int j = 0; j < NUM_SEEDS_PER_FRAME; j++)
+            {
+                if (heightMaps[j] == null)
+                {
+                    break;
+                }
+                spawns[j] = Spawn.FindSurvivalSpawn(seeds[j], heightMaps[j]);
+            }
+
+            findSeedTasks[i] = Task.Run(() => FindSeeds(seeds, heightMaps, spawns));
         }
 
         foreach (var findSeedTask in findSeedTasks)
