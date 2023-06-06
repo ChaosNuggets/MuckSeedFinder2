@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TMPro;
 using UnityEngine;
 
 public class MainClass : MonoBehaviour
 {
-    public TextMeshProUGUI seedsTestedText;
-    public TextMeshProUGUI estimatedTimeText;
-    public TextMeshProUGUI speedText;
+    public const int START_SEED = int.MinValue;
+    public const int END_SEED = int.MaxValue;
+    public const uint NUM_SEEDS = (uint)((long)END_SEED - START_SEED);
 
     private const int NUM_THREADS = 10;
     private const int NUM_SEEDS_PER_FRAME = 10;
@@ -16,6 +15,7 @@ public class MainClass : MonoBehaviour
     private readonly int[] endSeeds = new int[NUM_THREADS];
 
     private readonly SeedCalculator[] seedCalculators = new SeedCalculator[NUM_THREADS];
+    private readonly bool[] isSeedChunkDone = new bool[NUM_THREADS];
 
     private static (int[], HeightMap[]) GetHeightMaps(SeedCalculator seedCalculator, int startSeed, int endSeed)
     {
@@ -66,6 +66,11 @@ public class MainClass : MonoBehaviour
         var heightMapTasks = new Task<(int[], HeightMap[])>[NUM_THREADS];
         for (int i = 0; i < NUM_THREADS; i++)
         {
+            if (isSeedChunkDone[i])
+            {
+                continue;
+            }
+
             int index = i; // avoid access to modified closure
             heightMapTasks[i] = Task.Run(() => GetHeightMaps(seedCalculators[index], startSeeds[index], endSeeds[index]));
         }
@@ -73,6 +78,11 @@ public class MainClass : MonoBehaviour
         var findSeedTasks = new Task<List<(int, float)>>[NUM_THREADS];
         for (int i = 0; i < NUM_THREADS; i++)
         {
+            if (isSeedChunkDone[i])
+            {
+                continue;
+            }
+
             var (seeds, heightMaps) = heightMapTasks[i].Result;
 
             var spawns = new Vector3[NUM_SEEDS_PER_FRAME];
@@ -80,6 +90,7 @@ public class MainClass : MonoBehaviour
             {
                 if (heightMaps[j] == null)
                 {
+                    isSeedChunkDone[i] = true;
                     break;
                 }
                 spawns[j] = Spawn.FindSurvivalSpawn(seeds[j], heightMaps[j]);
@@ -88,9 +99,14 @@ public class MainClass : MonoBehaviour
             findSeedTasks[i] = Task.Run(() => FindSeeds(seeds, heightMaps, spawns));
         }
 
-        foreach (var findSeedTask in findSeedTasks)
+        for (int i = 0; i < NUM_THREADS; i++)
         {
-            godDistanceSeeds.AddRange(findSeedTask.Result);
+            if (isSeedChunkDone[i])
+            {
+                continue;
+            }
+
+            godDistanceSeeds.AddRange(findSeedTasks[i].Result);
         }
 
         return godDistanceSeeds;
@@ -98,51 +114,59 @@ public class MainClass : MonoBehaviour
 
     private void UpdateText()
     {
-        const int MINUTES_PER_HOUR = 60;
-        const int SECONDS_PER_MINUTE = 60;
-
         int numTestedSeeds = 0;
         for (int i = 0; i < NUM_THREADS; i++)
         {
             numTestedSeeds += seedCalculators[i].currentSeed - 1 - startSeeds[i];
         }
 
-        seedsTestedText.text = $"Seeds Tested:\n{numTestedSeeds} / {uint.MaxValue}";
-        Console.WriteLine(seedsTestedText.text);
+        PrintStuff.instance.UpdateText(numTestedSeeds);
+    }
 
-        float secondsLeft = Time.unscaledTime / numTestedSeeds * (uint.MaxValue - numTestedSeeds);
-        int minutesLeft = Mathf.RoundToInt(secondsLeft / SECONDS_PER_MINUTE);
-        int hoursLeft = minutesLeft / MINUTES_PER_HOUR;
-        minutesLeft %= MINUTES_PER_HOUR;
+    private bool HasTestedAllSeeds()
+    {
+        for (int i = 0; i < NUM_THREADS; i++)
+        {
+            if (!isSeedChunkDone[i])
+            {
+                return false;
+            }
+        }
 
-        estimatedTimeText.text = $"Estimated Time Remaining:\n{hoursLeft} hr {minutesLeft} min";
-        Console.WriteLine(estimatedTimeText.text);
-
-        speedText.text = $"Speed:\n{Mathf.RoundToInt(numTestedSeeds / Time.unscaledTime)} seeds / sec";
-        Console.WriteLine(speedText.text);
+        return true;
     }
 
     private void Update()
     {
-        UpdateText();
-        FileStuff.LogSeeds(FindSeeds());
+        if (!HasTestedAllSeeds())
+        {
+            FileStuff.LogSeeds(FindSeeds());
+            UpdateText();
+        }
+        else
+        {
+            enabled = false; // Stop the script from running
+            PrintStuff.instance.WriteSummaryMessage();
+        }
     }
 
     private void Awake()
     {
-        const uint SEED_CHUNK_SIZE = uint.MaxValue / NUM_THREADS;
+        const uint SEED_CHUNK_SIZE = NUM_SEEDS / NUM_THREADS;
 
-        startSeeds[0] = int.MinValue;
+        startSeeds[0] = START_SEED;
         for (int i = 0; i < NUM_THREADS - 1; i++)
         {
             startSeeds[i + 1] = (int)(startSeeds[i] + SEED_CHUNK_SIZE);
             endSeeds[i] = startSeeds[i + 1] - 1;
         }
-        endSeeds[NUM_THREADS - 1] = int.MaxValue;
+        endSeeds[NUM_THREADS - 1] = END_SEED;
 
         for (int i = 0; i < NUM_THREADS; i++)
         {
             seedCalculators[i] = new SeedCalculator(startSeeds[i]);
         }
+
+        Array.Fill(isSeedChunkDone, false);
     }
 }

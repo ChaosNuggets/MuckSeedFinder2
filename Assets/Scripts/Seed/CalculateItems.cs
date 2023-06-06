@@ -51,6 +51,7 @@ public static class CalculateItems
     {
         const int CHEST_SIZE = 21;
         int[] cells = new int[CHEST_SIZE];
+        Array.Fill(cells, -1);
 
         List<int> intList = new();
         for (int index = 0; index < CHEST_SIZE; index++)
