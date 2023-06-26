@@ -173,25 +173,26 @@ public class MainClass : MonoBehaviour
 
     private void Awake()
     {
-        List<(int, bool)> potentialSpearSeeds = new();
-        for (int i = int.MinValue; i < int.MinValue + 100000; i++)
+        List<int> potentialSpearSeeds = new();
+        for (int i = int.MinValue; i < int.MinValue + 1000000; i++)
         {
-            var (isPotential, isActual) = CalculateItems.IsSpearSeed(i);
+            var (isPotential, _) = CalculateItems.IsSpearSeed(i);
             if (isPotential)
             {
-                potentialSpearSeeds.Add((i, isActual));
+                potentialSpearSeeds.Add(i);
             }
         }
 
-        string path = Environment.GetFolderPath(
-            Environment.SpecialFolder.DesktopDirectory) + @"\test_stuff.csv"; // Get the path to the desktop
-        using StreamWriter sw = File.CreateText(path);
-        sw.WriteLine("Seed,IsActual");
-        foreach(var (potentialSpearSeed, isActual) in potentialSpearSeeds)
+        HashSet<int> differences = new();
+        for (int i = 1; i < potentialSpearSeeds.Count; i++)
         {
-            sw.WriteLine($"{potentialSpearSeed},{(isActual ? "yes" : "no")}");
+            int difference = potentialSpearSeeds[i] - potentialSpearSeeds[i - 1];
+            differences.Add(difference);
         }
 
-        UnityEngine.Debug.Log("done");
+        foreach (int difference in differences)
+        {
+            UnityEngine.Debug.Log(difference);
+        }
     }
 }
