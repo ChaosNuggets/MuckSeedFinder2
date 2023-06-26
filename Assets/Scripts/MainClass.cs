@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -136,37 +137,51 @@ public class MainClass : MonoBehaviour
         return true;
     }
 
-    private void Update()
-    {
-        if (!HasTestedAllSeeds())
-        {
-            FileStuff.LogSeeds(FindSeeds());
-            UpdateText();
-        }
-        else
-        {
-            enabled = false; // Stop the script from running
-            PrintStuff.instance.WriteSummaryMessage();
-        }
-    }
+    //private void Update()
+    //{
+    //    if (!HasTestedAllSeeds())
+    //    {
+    //        FileStuff.LogSeeds(FindSeeds());
+    //        UpdateText();
+    //    }
+    //    else
+    //    {
+    //        enabled = false; // Stop the script from running
+    //        PrintStuff.instance.WriteSummaryMessage();
+    //    }
+    //}
+
+    //private void Awake()
+    //{
+    //    const uint SEED_CHUNK_SIZE = NUM_SEEDS / NUM_THREADS;
+
+    //    startSeeds[0] = START_SEED;
+    //    for (int i = 0; i < NUM_THREADS - 1; i++)
+    //    {
+    //        startSeeds[i + 1] = (int)(startSeeds[i] + SEED_CHUNK_SIZE);
+    //        endSeeds[i] = startSeeds[i + 1] - 1;
+    //    }
+    //    endSeeds[NUM_THREADS - 1] = END_SEED;
+
+    //    for (int i = 0; i < NUM_THREADS; i++)
+    //    {
+    //        seedCalculators[i] = new SeedCalculator(startSeeds[i]);
+    //    }
+
+    //    Array.Fill(isSeedChunkDone, false);
+    //}
 
     private void Awake()
     {
-        const uint SEED_CHUNK_SIZE = NUM_SEEDS / NUM_THREADS;
+        SeedCalculator seedCalculator = new(int.MinValue);
+        int[] godSeeds = seedCalculator.CalculateNextGodSeeds(100);
 
-        startSeeds[0] = START_SEED;
-        for (int i = 0; i < NUM_THREADS - 1; i++)
+        string path = Environment.GetFolderPath(
+            Environment.SpecialFolder.DesktopDirectory) + @"\test_stuff.txt"; // Get the path to the desktop
+        using StreamWriter sw = File.AppendText(path);
+        foreach(int godSeed in godSeeds)
         {
-            startSeeds[i + 1] = (int)(startSeeds[i] + SEED_CHUNK_SIZE);
-            endSeeds[i] = startSeeds[i + 1] - 1;
+            sw.WriteLine(godSeed);
         }
-        endSeeds[NUM_THREADS - 1] = END_SEED;
-
-        for (int i = 0; i < NUM_THREADS; i++)
-        {
-            seedCalculators[i] = new SeedCalculator(startSeeds[i]);
-        }
-
-        Array.Fill(isSeedChunkDone, false);
     }
 }

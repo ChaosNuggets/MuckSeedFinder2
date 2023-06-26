@@ -27,6 +27,16 @@ public static class CalculateItems
     // and then whether or not it's an actual god seed
     public static (bool, bool) IsGodSeed(int seed)
     {
+        return IsGoodSeed(seed, new HashSet<int>() { SPEAR_INDEX, BOW_INDEX } );
+    }
+
+    public static (bool, bool) IsSpearSeed(int seed)
+    {
+        return IsGoodSeed(seed, new HashSet<int>() { SPEAR_INDEX } );
+    }
+
+    public static (bool, bool) IsGoodSeed(int seed, HashSet<int> indexes)
+    {
         ConsistentRandom rand = new(seed);
         List<int> items = new();
 
@@ -37,17 +47,17 @@ public static class CalculateItems
             {
                 items.Add(i);
             }
-            else if (i == BOW_INDEX || i == SPEAR_INDEX)
+            else if (indexes.Contains(i))
             {
                 return (false, false);
             }
         }
-        // Code should only reach this point if there's both spear and bow in the item list
+        // Code should only reach this point if there's all of the indexes in the item list
 
-        return (true, IsChestGood(items, rand));
+        return (true, IsChestGoodArray(items, rand, indexes));
     }
 
-    private static bool IsChestGood(List<int> items, ConsistentRandom rand)
+    private static bool IsChestGoodArray(List<int> items, ConsistentRandom rand, HashSet<int> indexes)
     {
         const int CHEST_SIZE = 21;
         int[] cells = new int[CHEST_SIZE];
@@ -66,6 +76,27 @@ public static class CalculateItems
             cells[index] = item;
         }
 
-        return cells.Contains(SPEAR_INDEX) && cells.Contains(BOW_INDEX);
+        return indexes.IsSubsetOf(cells);
+    }
+
+    private static bool IsChestGoodDictionary(List<int> items, ConsistentRandom rand, HashSet<int> indexes)
+    {
+        const int CHEST_SIZE = 21;
+        Dictionary<int, int> cells = new(items.Count);
+
+        List<int> intList = new();
+        for (int index = 0; index < CHEST_SIZE; index++)
+        {
+            intList.Add(index);
+        }
+
+        foreach (int item in items)
+        {
+            int index = rand.Next(0, intList.Count);
+            intList.Remove(index);
+            cells[index] = item;
+        }
+
+        return indexes.IsSubsetOf(cells.Values);
     }
 }

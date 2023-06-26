@@ -36,9 +36,7 @@ public static class FileStuff
 
     private static void WriteData(string path, int seed, float distance)
     {
-        using (StreamWriter sw = File.AppendText(path))
-        {
-            sw.WriteLine($"{seed},{Mathf.RoundToInt(distance)}");
-        }
+        using StreamWriter sw = File.AppendText(path);
+        sw.WriteLine($"{seed},{Mathf.RoundToInt(distance)}");
     }
 }
