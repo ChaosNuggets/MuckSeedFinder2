@@ -54,7 +54,7 @@ public static class CalculateItems
         }
         // Code should only reach this point if there's all of the indexes in the item list
 
-        return (true, IsChestGoodArray(items, rand, indexes));
+        return (true, IsChestGoodDictionary(items, rand, indexes));
     }
 
     private static bool IsChestGoodArray(List<int> items, ConsistentRandom rand, HashSet<int> indexes)
