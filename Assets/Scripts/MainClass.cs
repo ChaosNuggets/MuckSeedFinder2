@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -174,21 +173,25 @@ public class MainClass : MonoBehaviour
 
     private void Awake()
     {
-        Stopwatch stopwatch = Stopwatch.StartNew();
-
-        SeedCalculator seedCalculator = new(int.MinValue);
-        int[] godSeeds = seedCalculator.CalculateNextGodSeeds(1000);
-
-        stopwatch.Stop();
-        UnityEngine.Debug.Log($"Elapsed ticks: {stopwatch.ElapsedTicks}");
-
+        List<(int, bool)> potentialSpearSeeds = new();
+        for (int i = int.MinValue; i < int.MinValue + 100000; i++)
+        {
+            var (isPotential, isActual) = CalculateItems.IsSpearSeed(i);
+            if (isPotential)
+            {
+                potentialSpearSeeds.Add((i, isActual));
+            }
+        }
 
         string path = Environment.GetFolderPath(
-            Environment.SpecialFolder.DesktopDirectory) + @"\test_stuff.txt"; // Get the path to the desktop
+            Environment.SpecialFolder.DesktopDirectory) + @"\test_stuff.csv"; // Get the path to the desktop
         using StreamWriter sw = File.CreateText(path);
-        foreach(int godSeed in godSeeds)
+        sw.WriteLine("Seed,IsActual");
+        foreach(var (potentialSpearSeed, isActual) in potentialSpearSeeds)
         {
-            sw.WriteLine(godSeed);
+            sw.WriteLine($"{potentialSpearSeed},{(isActual ? "yes" : "no")}");
         }
+
+        UnityEngine.Debug.Log("done");
     }
 }

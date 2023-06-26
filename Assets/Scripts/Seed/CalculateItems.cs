@@ -54,10 +54,10 @@ public static class CalculateItems
         }
         // Code should only reach this point if there's all of the indexes in the item list
 
-        return (true, IsChestGoodDictionary(items, rand, indexes));
+        return (true, IsChestGood(items, rand, indexes));
     }
 
-    private static bool IsChestGoodArray(List<int> items, ConsistentRandom rand, HashSet<int> indexes)
+    private static bool IsChestGood(List<int> items, ConsistentRandom rand, HashSet<int> indexes)
     {
         const int CHEST_SIZE = 21;
         int[] cells = new int[CHEST_SIZE];
@@ -77,26 +77,5 @@ public static class CalculateItems
         }
 
         return indexes.IsSubsetOf(cells);
-    }
-
-    private static bool IsChestGoodDictionary(List<int> items, ConsistentRandom rand, HashSet<int> indexes)
-    {
-        const int CHEST_SIZE = 21;
-        Dictionary<int, int> cells = new(items.Count);
-
-        List<int> intList = new();
-        for (int index = 0; index < CHEST_SIZE; index++)
-        {
-            intList.Add(index);
-        }
-
-        foreach (int item in items)
-        {
-            int index = rand.Next(0, intList.Count);
-            intList.Remove(index);
-            cells[index] = item;
-        }
-
-        return indexes.IsSubsetOf(cells.Values);
     }
 }
