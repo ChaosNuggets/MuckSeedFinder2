@@ -1,80 +1,80 @@
-public class SeedCalculator
+using System;
+
+public abstract class SeedCalculator
 {
     private enum Mode
     {
         One,
-        God
+        Increment
     }
     private Mode currentMode = Mode.One;
 
-    private int lastPotentialGodSeed;
-    public int currentSeed { get; private set; }
-    private bool hasFoundPotentialGod = false;
-    private readonly int[] increments =
-    {
-        19,
-        1204, 1223, 1242, 1261, 1280,
-        7745, 7764,
-        9025, 9044
-    };
+    private int lastPotentialSeed;
+    public int currentSeed { get; protected set; }
+    private bool hasFoundPotentialSeed = false;
+    protected readonly int[] increments;
     private int incrementIndex = -1;
 
-    public SeedCalculator(int startSeed)
+    protected SeedCalculator(int startSeed, int[] increments)
     {
         currentSeed = startSeed;
+        this.increments = increments;
     }
 
-    public int[] CalculateNextGodSeeds(int seedsToFind)
+    protected abstract (bool, bool) IsGoodSeed(int seed);
+
+    public int[] CalculateNextSeeds(int seedsToFind)
     {
-        int[] godSeeds = new int[seedsToFind];
+        int[] seeds = new int[seedsToFind];
         for (int i = 0; i < seedsToFind; i++)
         {
-            godSeeds[i] = CalculateNextGodSeed();
+            seeds[i] = CalculateNextSeed();
         }
-        return godSeeds;
+        return seeds;
     }
 
-    public int CalculateNextGodSeed()
+    public int CalculateNextSeed()
     {
-        int godSeed = 69420;
-        bool hasFoundGod = false;
+        int seed = 69420;
+        bool hasFoundSeed = false;
 
-        while (!hasFoundGod)
+        while (!hasFoundSeed)
         {
-            (bool isPotentialGodSeed, bool isGodSeed) = CalculateItems.IsGodSeed(currentSeed);
-            if (isPotentialGodSeed)
+            (bool isPotentialSeed, bool isActualSeed) = IsGoodSeed(currentSeed);
+            if (isPotentialSeed)
             {
-                lastPotentialGodSeed = currentSeed;
-                hasFoundPotentialGod = true;
-                currentMode = Mode.God;
-                if (isGodSeed)
+                lastPotentialSeed = currentSeed;
+                hasFoundPotentialSeed = true;
+                currentMode = Mode.Increment;
+                if (isActualSeed)
                 {
-                    godSeed = currentSeed;
-                    hasFoundGod = true;
+                    seed = currentSeed;
+                    hasFoundSeed = true;
                 }
             }
             else
             {
-                hasFoundPotentialGod = false;
+                hasFoundPotentialSeed = false;
             }
             IncrementSeed();
         }
 
-        return godSeed;
+        return seed;
     }
+
     private void IncrementSeed()
     {
-        if (currentMode == Mode.God)
+        if (currentMode == Mode.Increment)
         {
-            if (!hasFoundPotentialGod && incrementIndex >= increments.Length - 1)
+            if (!hasFoundPotentialSeed && incrementIndex >= increments.Length - 1)
             {
-                currentSeed = lastPotentialGodSeed;
+                currentSeed = lastPotentialSeed;
                 currentMode = Mode.One; // Demote the mode
             }
             else
             {
-                incrementIndex = hasFoundPotentialGod ? 0 : incrementIndex + 1;
-                currentSeed = lastPotentialGodSeed + increments[incrementIndex];
+                incrementIndex = hasFoundPotentialSeed ? 0 : incrementIndex + 1;
+                currentSeed = lastPotentialSeed + increments[incrementIndex];
                 return;
             }
         }

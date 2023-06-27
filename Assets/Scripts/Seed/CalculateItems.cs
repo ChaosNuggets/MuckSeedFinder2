@@ -4,8 +4,8 @@ using System.Linq;
 
 public static class CalculateItems
 {
-    private const int BOW_INDEX = 9;
-    private const int SPEAR_INDEX = 10;
+    public const int BOW_INDEX = 9;
+    public const int SPEAR_INDEX = 10;
 
     private static readonly float[] dropChances =
     {
@@ -23,18 +23,13 @@ public static class CalculateItems
             0.1f    // 11: Spear Tip
         };
 
-    // Returns whether or not it's a potential god seed,
-    // and then whether or not it's an actual god seed
-    public static (bool, bool) IsGodSeed(int seed)
-    {
-        return IsGoodSeed(seed, new HashSet<int>() { SPEAR_INDEX, BOW_INDEX } );
-    }
-
     public static (bool, bool) IsSpearSeed(int seed)
     {
         return IsGoodSeed(seed, new HashSet<int>() { SPEAR_INDEX } );
     }
 
+    // Returns whether or not it's a potential seed,
+    // and then whether or not it's an actual seed
     public static (bool, bool) IsGoodSeed(int seed, HashSet<int> indexes)
     {
         ConsistentRandom rand = new(seed);
