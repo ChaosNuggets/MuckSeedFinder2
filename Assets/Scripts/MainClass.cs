@@ -14,13 +14,13 @@ public class MainClass : MonoBehaviour
     private readonly int[] startSeeds = new int[NUM_THREADS];
     private readonly int[] endSeeds = new int[NUM_THREADS];
 
-    private readonly GodSeedCalculator[] godSeedCalculators = new GodSeedCalculator[NUM_THREADS];
+    private readonly SeedCalculator[] seedCalculators = new SeedCalculator[NUM_THREADS];
     private readonly bool[] isSeedChunkDone = new bool[NUM_THREADS];
 
-    private static (int[], HeightMap[]) GetHeightMaps(GodSeedCalculator godSeedCalculator, int startSeed, int endSeed)
+    private static (int[], HeightMap[]) GetHeightMaps(SeedCalculator seedCalculator, int startSeed, int endSeed)
     {
         HeightMap[] heightMaps = new HeightMap[NUM_SEEDS_PER_FRAME];
-        int[] seeds = godSeedCalculator.CalculateNextSeeds(NUM_SEEDS_PER_FRAME);
+        int[] seeds = seedCalculator.CalculateNextSeeds(NUM_SEEDS_PER_FRAME);
 
         // seeds[i] >= startSeed is for handling the overflow edge case
         int i = 0;
@@ -72,7 +72,7 @@ public class MainClass : MonoBehaviour
             }
 
             int index = i; // avoid access to modified closure
-            heightMapTasks[i] = Task.Run(() => GetHeightMaps(godSeedCalculators[index], startSeeds[index], endSeeds[index]));
+            heightMapTasks[i] = Task.Run(() => GetHeightMaps(seedCalculators[index], startSeeds[index], endSeeds[index]));
         }
 
         var findSeedTasks = new Task<List<(int, float)>>[NUM_THREADS];
@@ -117,7 +117,7 @@ public class MainClass : MonoBehaviour
         int numTestedSeeds = 0;
         for (int i = 0; i < NUM_THREADS; i++)
         {
-            numTestedSeeds += godSeedCalculators[i].currentSeed - 1 - startSeeds[i];
+            numTestedSeeds += seedCalculators[i].currentSeed - 1 - startSeeds[i];
         }
 
         PrintStuff.instance.UpdateText(numTestedSeeds);
@@ -164,7 +164,7 @@ public class MainClass : MonoBehaviour
 
         for (int i = 0; i < NUM_THREADS; i++)
         {
-            godSeedCalculators[i] = new GodSeedCalculator(startSeeds[i]);
+            seedCalculators[i] = new SpearSeedCalculator(startSeeds[i]);
         }
 
         Array.Fill(isSeedChunkDone, false);

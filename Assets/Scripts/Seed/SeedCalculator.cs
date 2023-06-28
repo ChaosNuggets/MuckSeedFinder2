@@ -1,5 +1,3 @@
-using System;
-
 public abstract class SeedCalculator
 {
     private enum Mode

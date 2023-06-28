@@ -23,11 +23,6 @@ public static class CalculateItems
             0.1f    // 11: Spear Tip
         };
 
-    public static (bool, bool) IsSpearSeed(int seed)
-    {
-        return IsGoodSeed(seed, new HashSet<int>() { SPEAR_INDEX } );
-    }
-
     // Returns whether or not it's a potential seed,
     // and then whether or not it's an actual seed
     public static (bool, bool) IsGoodSeed(int seed, HashSet<int> indexes)
