@@ -2,10 +2,8 @@ using System;
 using TMPro;
 using UnityEngine;
 
-public class PrintStuff : MonoBehaviour
+public class PrintStuff : Singleton<PrintStuff>
 {
-    public static PrintStuff instance;
-
     [SerializeField]
     private TextMeshProUGUI seedsTestedText;
     [SerializeField]
@@ -38,7 +36,7 @@ public class PrintStuff : MonoBehaviour
         Console.WriteLine("\nSeed Finding Completed Successfully.\n");
 
         Console.WriteLine("---------------SUMMARY---------------");
-        Console.WriteLine($"Number of Seeds Tested: {MainClass.NUM_SEEDS}");
+        Console.WriteLine($"Number of seeds tested: {MainClass.NUM_SEEDS}");
 
         int elapsedSeconds = Mathf.RoundToInt(Time.unscaledTime);
         int elapsedHours = elapsedSeconds / (SECONDS_PER_MINUTE * MINUTES_PER_HOUR);
@@ -51,17 +49,5 @@ public class PrintStuff : MonoBehaviour
         Console.WriteLine("-------------------------------------");
 
         Console.WriteLine("\nYou may close the seed finder now");
-    }
-
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else if (instance != this)
-        {
-            Destroy(this);
-        }
     }
 }
