@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class MainClass : MonoBehaviour
+public class SeedFinderRunner : Singleton<SeedFinderRunner>
 {
     public const int START_SEED = int.MinValue;
     public const int END_SEED = int.MaxValue;
@@ -11,11 +11,11 @@ public class MainClass : MonoBehaviour
 
     private const int NUM_THREADS = 10;
     private const int NUM_SEEDS_PER_FRAME = 10;
-    private readonly int[] startSeeds = new int[NUM_THREADS];
-    private readonly int[] endSeeds = new int[NUM_THREADS];
+    private static readonly int[] startSeeds = new int[NUM_THREADS];
+    private static readonly int[] endSeeds = new int[NUM_THREADS];
 
-    private readonly SeedCalculator[] seedCalculators = new SeedCalculator[NUM_THREADS];
-    private readonly bool[] isSeedChunkDone = new bool[NUM_THREADS];
+    private static readonly SeedCalculator[] seedCalculators = new SeedCalculator[NUM_THREADS];
+    private static readonly bool[] isSeedChunkDone = new bool[NUM_THREADS];
 
     private static (int[], HeightMap[]) GetHeightMaps(SeedCalculator seedCalculator, int startSeed, int endSeed)
     {
@@ -59,7 +59,7 @@ public class MainClass : MonoBehaviour
         return goodDistanceSeeds;
     }
 
-    private List<(int, float)> FindSeeds()
+    private static List<(int, float)> FindSeeds()
     {
         List<(int, float)> goodDistanceSeeds = new();
 
@@ -112,7 +112,7 @@ public class MainClass : MonoBehaviour
         return goodDistanceSeeds;
     }
 
-    private void UpdateText()
+    private static void UpdateText()
     {
         int numTestedSeeds = 0;
         for (int i = 0; i < NUM_THREADS; i++)
@@ -123,7 +123,7 @@ public class MainClass : MonoBehaviour
         PrintStuff.instance.UpdateText(numTestedSeeds);
     }
 
-    private bool HasTestedAllSeeds()
+    private static bool HasTestedAllSeeds()
     {
         for (int i = 0; i < NUM_THREADS; i++)
         {
@@ -150,7 +150,7 @@ public class MainClass : MonoBehaviour
         }
     }
 
-    private void Awake()
+    public static void InitSeedFinder(Func<int, SeedCalculator> calculatorCreator)
     {
         const uint SEED_CHUNK_SIZE = NUM_SEEDS / NUM_THREADS;
 
@@ -164,7 +164,7 @@ public class MainClass : MonoBehaviour
 
         for (int i = 0; i < NUM_THREADS; i++)
         {
-            seedCalculators[i] = new SpearSeedCalculator(startSeeds[i]);
+            seedCalculators[i] = calculatorCreator(startSeeds[i]);
         }
 
         Array.Fill(isSeedChunkDone, false);

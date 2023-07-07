@@ -16,10 +16,10 @@ public class PrintStuff : Singleton<PrintStuff>
 
     public void UpdateText(int numTestedSeeds)
     {
-        seedsTestedText.text = $"Seeds Tested:\n{numTestedSeeds} / {MainClass.NUM_SEEDS}";
+        seedsTestedText.text = $"Seeds Tested:\n{numTestedSeeds} / {SeedFinderRunner.NUM_SEEDS}";
         Console.WriteLine(seedsTestedText.text);
 
-        float secondsLeft = Time.realtimeSinceStartup / numTestedSeeds * (MainClass.NUM_SEEDS - numTestedSeeds);
+        float secondsLeft = Time.realtimeSinceStartup / numTestedSeeds * (SeedFinderRunner.NUM_SEEDS - numTestedSeeds);
         int minutesLeft = Mathf.RoundToInt(secondsLeft / SECONDS_PER_MINUTE);
         int hoursLeft = minutesLeft / MINUTES_PER_HOUR;
         minutesLeft %= MINUTES_PER_HOUR;
@@ -36,7 +36,7 @@ public class PrintStuff : Singleton<PrintStuff>
         Console.WriteLine("\nSeed Finding Completed Successfully.\n");
 
         Console.WriteLine("---------------SUMMARY---------------");
-        Console.WriteLine($"Number of seeds tested: {MainClass.NUM_SEEDS}");
+        Console.WriteLine($"Number of seeds tested: {SeedFinderRunner.NUM_SEEDS}");
 
         int elapsedSeconds = Mathf.RoundToInt(Time.unscaledTime);
         int elapsedHours = elapsedSeconds / (SECONDS_PER_MINUTE * MINUTES_PER_HOUR);
@@ -45,7 +45,7 @@ public class PrintStuff : Singleton<PrintStuff>
         elapsedSeconds %= SECONDS_PER_MINUTE;
         Console.WriteLine($"Total time: {elapsedHours} hr {elapsedMinutes} min {elapsedSeconds} sec");
 
-        Console.WriteLine($"Average speed: {Mathf.RoundToInt(MainClass.NUM_SEEDS / Time.unscaledTime)} seeds / sec");
+        Console.WriteLine($"Average speed: {Mathf.RoundToInt(SeedFinderRunner.NUM_SEEDS / Time.unscaledTime)} seeds / sec");
         Console.WriteLine("-------------------------------------");
 
         Console.WriteLine("\nYou may close the seed finder now");

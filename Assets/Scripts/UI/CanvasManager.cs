@@ -11,8 +11,8 @@ public enum CanvasType
 
 public class CanvasManager : Singleton<CanvasManager>
 {
-    private List<CanvasController> canvasControllerList;
-    private CanvasController lastActiveCanvas;
+    private static List<CanvasController> canvasControllerList;
+    private static CanvasController lastActiveCanvas;
 
     protected override void Awake()
     {
@@ -22,7 +22,7 @@ public class CanvasManager : Singleton<CanvasManager>
         SwitchCanvas(CanvasType.StartScreen);
     }
 
-    public void SwitchCanvas(CanvasType _type)
+    public static void SwitchCanvas(CanvasType _type)
     {
         if (lastActiveCanvas != null)
         {
