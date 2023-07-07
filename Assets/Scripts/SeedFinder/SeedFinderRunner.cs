@@ -145,8 +145,8 @@ public class SeedFinderRunner : Singleton<SeedFinderRunner>
         }
         else
         {
-            enabled = false; // Stop the script from running
             PrintStuff.instance.WriteSummaryMessage();
+            CanvasManager.SwitchCanvas(CanvasType.SummaryScreen); // This will stop SeedFinderRunner.Update
         }
     }
 

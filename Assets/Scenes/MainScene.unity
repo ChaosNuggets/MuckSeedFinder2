@@ -2004,6 +2004,9 @@ MonoBehaviour:
   seedsTestedText: {fileID: 192868508}
   estimatedTimeText: {fileID: 643960365}
   speedText: {fileID: 779876672}
+  totalSeedsText: {fileID: 141782196}
+  totalTimeText: {fileID: 1236155785}
+  averageSpeedText: {fileID: 1295071861}
 --- !u!1 &1493826158
 GameObject:
   m_ObjectHideFlags: 0
