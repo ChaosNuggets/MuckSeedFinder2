@@ -129,3 +129,5 @@ public class ConsistentRandom : Random
 	// Token: 0x0400062B RID: 1579
 	private readonly int[] SeedArray = new int[56];
 }
+
+// Written by Dani

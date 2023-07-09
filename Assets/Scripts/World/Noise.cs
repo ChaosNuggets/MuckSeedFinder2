@@ -63,3 +63,5 @@ public static class Noise
 		return array;
 	}
 }
+
+// Written by Dani

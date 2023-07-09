@@ -28,3 +28,5 @@ public static class FalloffGenerator
 		return Mathf.Pow(value, p) / (Mathf.Pow(value, p) + Mathf.Pow(num - num * value, p));
 	}
 }
+
+// Written by Dani
