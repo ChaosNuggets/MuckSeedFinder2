@@ -676,6 +676,7 @@ GameObject:
   - component: {fileID: 286263226}
   - component: {fileID: 286263227}
   - component: {fileID: 286263228}
+  - component: {fileID: 286263229}
   m_Layer: 5
   m_Name: RunningScreen
   m_TagString: Untagged
@@ -729,6 +730,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 710884e9e868d9c438738fb910cfe0c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &286263229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 286263225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8efc30f8d2ea8d940ba1ba5e4c82429a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &329687573

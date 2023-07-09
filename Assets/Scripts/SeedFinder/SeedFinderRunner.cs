@@ -40,7 +40,7 @@ public class SeedFinderRunner : Singleton<SeedFinderRunner>
 
     private static List<(int, float)> FindSeeds(int[] seeds, HeightMap[] heightMaps, Vector3[] spawns)
     {
-        const float MAX_DISTANCE_TO_LOG = 3000;
+        const float MAX_DISTANCE_TO_LOG = 2000;
         List<(int, float)> goodDistanceSeeds = new();
 
         for (int i = 0; i < NUM_SEEDS_PER_FRAME && heightMaps[i] != null; i++)
